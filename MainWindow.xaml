@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:WallPaperClassificator"
+	xmlns:comp="using:WallPaperClassificator.Component"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -14,30 +15,56 @@
         x:Name="BackgroundPanel"
         HorizontalAlignment="Stretch"
         VerticalAlignment="Stretch"
-        Padding="100,200"
-		RowSpacing="5"
+        Padding="16,32"
+		RowSpacing="16"
         Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
     >
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
+		<Grid
+			Grid.Row="0"
+			Grid.Column="0"
+			ColumnSpacing="24"
+		>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
 			<TextBox
-            Header="Path to WallPaper Directory"
-            PlaceholderText="path/to/"
-            x:Name="WallPaperDirPath"
-        />
-		<Button Content="Start Classificate" Click="StartClassificate_Click" />
+				Grid.Row="0"
+				Grid.Column="0"
+				Header="Path to WallPaper Directory"
+				PlaceholderText="path/to/"
+				x:Name="WallPaperDirPath"
+			/>
+			<Button
+				Grid.Row="0"
+				Grid.Column="1"
+				Content="Select"
+				VerticalAlignment="Bottom"
+				Click="SelectFolder_Click"
+			/>
+		</Grid>
+		<Button
+			Grid.Row="1"
+			Grid.Column="0"
+			Content="Start Classificate"
+			Click="StartClassificate_Click"
+			HorizontalAlignment="Stretch"
+		/>
 		<ListView
             x:Name="FileList"
+			Grid.Row="2"
+			Grid.Column="0"
             ItemsSource="{x:Bind Files}"
             SelectionMode="None"
             BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
             BorderThickness="1"
-            HorizontalAlignment="Left"
-            HorizontalContentAlignment="Center"
-            Height="300"
-            Width="500"
+            HorizontalAlignment="Stretch"
         >
 			<ListView.ItemTemplate>
 				<DataTemplate x:DataType="x:String">
@@ -52,5 +79,6 @@
 				</DataTemplate>
 			</ListView.ItemTemplate>
 		</ListView>
+		<comp:PopupInfoBar Grid.Row="3" Grid.Column="0" Severity="Informational" Message="THIS IS TEST" />
 	</Grid>
 </Window>

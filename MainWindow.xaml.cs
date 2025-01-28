@@ -1,59 +1,54 @@
+using Microsoft.UI.Xaml;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace WallPaperClassificator
 {
-    /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class MainWindow : Window
+	public sealed partial class MainWindow : Window
     {
         public List<string> Files { get; set; }
         public MainWindow()
         {
-            Files = [];
+            Files = []; // The Array of Classificated Files' Path.
             this.InitializeComponent();
             this.Title = "WallPape Classificator";
 		}
         
         private void StartClassificate_Click(object sender, RoutedEventArgs args)
         {
-            Console.WriteLine(WallPaperDirPath.Text);
-            Console.WriteLine("TEST");
-
-			if (WallPaperDirPath.Text is null)
+			if (WallPaperDirPath.Text.Length == 0)
 				return;
 			string path = WallPaperDirPath.Text;
 
-			try
+            if (Directory.Exists(path))
             {
-				var wallpaperDir = Directory.EnumerateFiles(path);
-				Files = wallpaperDir.ToList();
-			} catch(Exception e)
-            {
-                Console.Error.WriteLine(e.Message);
-            }
+                // Minimize window and create subwindow.
+			}
 		}
+
+        private async void SelectFolder_Click(object sender, RoutedEventArgs args)
+        {
+            FolderPicker picker = new FolderPicker();
+            picker.FileTypeFilter.Add("*");
+
+            nint hWnd = WindowNative.GetWindowHandle(this);
+            InitializeWithWindow.Initialize(picker, hWnd);
+
+			StorageFolder? folder = await picker.PickSingleFolderAsync();
+			if (folder != null)
+            {
+				WallPaperDirPath.Text = folder.Path;
+			}
+        }
 
         private void CurrentWindow_SizeChanged(object sender, WindowSizeChangedEventArgs e)
 		{
 			BackgroundPanel.Width = e.Size.Width;
+			BackgroundPanel.Height = e.Size.Height;
 		}
 	}
 }
