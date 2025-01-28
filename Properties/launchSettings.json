@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WallPaperClassificator (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WallPaperClassificator (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
