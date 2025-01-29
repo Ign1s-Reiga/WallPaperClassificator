@@ -1,4 +1,5 @@
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,14 +16,14 @@ namespace WallPaperClassificator
         {
             Files = []; // The Array of Classificated Files' Path.
             this.InitializeComponent();
-            this.Title = "WallPape Classificator";
+            this.Title = "WallPaper Classificator";
 		}
         
         private void StartClassificate_Click(object sender, RoutedEventArgs args)
         {
-			if (WallPaperDirPath.Text.Length == 0)
+			if (NonClassifiedImageDirPath.Text.Length == 0)
 				return;
-			string path = WallPaperDirPath.Text;
+			string path = NonClassifiedImageDirPath.Text;
 
             if (Directory.Exists(path))
             {
@@ -41,7 +42,13 @@ namespace WallPaperClassificator
 			StorageFolder? folder = await picker.PickSingleFolderAsync();
 			if (folder != null)
             {
-				WallPaperDirPath.Text = folder.Path;
+                TextBox textBox = (TextBox)sender;
+                if (textBox.Name == "NonClassificatedWallPaperDirPath")
+					NonClassifiedImageDirPath.Text = folder.Path;
+				else if (textBox.Name == "SaveImageDirPath")
+					SaveImageDirPath.Text = folder.Path;
+				else
+                    return;
 			}
         }
 
