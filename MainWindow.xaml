@@ -4,108 +4,24 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:WallPaperClassificator"
-	xmlns:comp="using:WallPaperClassificator.Component"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="WallPaperClassificator"
     SizeChanged="CurrentWindow_SizeChanged"
 >
-	<Grid
-        x:Name="BackgroundPanel"
-        HorizontalAlignment="Stretch"
-        VerticalAlignment="Stretch"
-        Padding="36,32"
-		RowSpacing="16"
-        Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
-    >
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
-		<Grid
-			Grid.Row="0"
-			Grid.Column="0"
-			ColumnSpacing="24"
+	<Grid x:Name="BackgroundPanel" Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}">
+		<NavigationView
+			x:Name="MainNavView"
+			IsBackButtonVisible="Collapsed"
+			Loaded="MainNavView_Loaded"
+			ItemInvoked="MainNavView_ItemInvoked"
 		>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="Auto" />
-			</Grid.ColumnDefinitions>
-			<TextBox
-				Grid.Row="0"
-				Grid.Column="0"
-				Header="Path to Non-Classified Image Directory"
-				PlaceholderText="path/to/"
-				x:Name="NonClassifiedImageDirPath"
-			/>
-			<Button
-				Grid.Row="0"
-				Grid.Column="1"
-				Content="Select"
-				VerticalAlignment="Bottom"
-				Click="SelectFolder_Click"
-				x:Name="NonClassifiedImageDirButton"
-			/>
-		</Grid>
-		<Grid
-			Grid.Row="1"
-			Grid.Column="0"
-			ColumnSpacing="24"
-		>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="Auto" />
-			</Grid.ColumnDefinitions>
-			<TextBox
-				Grid.Row="0"
-				Grid.Column="0"
-				Header="Path to Save Directory"
-				PlaceholderText="path/to/"
-				x:Name="SaveImageDirPath"
-			/>
-			<Button
-				Grid.Row="0"
-				Grid.Column="1"
-				Content="Select"
-				VerticalAlignment="Bottom"
-				Click="SelectFolder_Click"
-				x:Name="SaveImageDirButton"
-			/>
-		</Grid>
-		<Button
-			Grid.Row="2"
-			Grid.Column="0"
-			Content="Start Classificate"
-			Click="StartClassificate_Click"
-			HorizontalAlignment="Stretch"
-		/>
-		<ListView
-            x:Name="FileList"
-			Grid.Row="3"
-			Grid.Column="0"
-            ItemsSource="{x:Bind Files}"
-            SelectionMode="None"
-            Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
-            HorizontalAlignment="Stretch"
-			
-        >
-			<ListView.ItemTemplate>
-				<DataTemplate x:DataType="x:String">
-					<Grid>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="Auto" />
-							<ColumnDefinition Width="*" />
-						</Grid.ColumnDefinitions>
-						<Image Stretch="None" Width="50" Height="50" Source="{x:Bind}" />
-						<TextBlock Text="{x:Bind}" />
-					</Grid>
-				</DataTemplate>
-			</ListView.ItemTemplate>
-		</ListView>
-		<comp:PopupInfoBar Grid.Row="4" Grid.Column="0" Severity="Informational" Message="THIS IS TEST" />
+			<NavigationView.MenuItems>
+				<NavigationViewItem Icon="Folder" Content="Classificate" Tag="MainPage" />
+				<NavigationViewItem Icon="Pictures" Content="Slideshow" Tag="MainPage" />
+			</NavigationView.MenuItems>
+			<Frame x:Name="ContentFrame"/>
+		</NavigationView>
 	</Grid>
 </Window>
