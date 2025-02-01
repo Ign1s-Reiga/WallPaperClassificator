@@ -22,12 +22,19 @@ namespace WallPaperClassificator
 		private void StartClassificate_Click(object sender, RoutedEventArgs args)
 		{
 			if (NonClassifiedImageDirPath.Text.Length == 0)
+			{
+				ClassificatePopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Please select the folder where the images are stored.");
 				return;
+			}
 			string path = NonClassifiedImageDirPath.Text;
 
 			if (Directory.Exists(path))
 			{
 				// Minimize window and create subwindow.
+			}
+			else
+			{
+				ClassificatePopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "The folder does not exist.");
 			}
 		}
 

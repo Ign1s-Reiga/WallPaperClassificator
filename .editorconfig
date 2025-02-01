@@ -30,6 +30,10 @@ dotnet_style_parentheses_in_other_operators = never_if_unnecessary:silent
 dotnet_style_operator_placement_when_wrapping = beginning_of_line
 end_of_line = crlf
 dotnet_code_quality_unused_parameters = all:suggestion
+
+# IDE0017: オブジェクトの初期化を簡略化します
+dotnet_diagnostic.IDE0017.severity = none
+
 [*.cs]
 #### 命名スタイル ####
 

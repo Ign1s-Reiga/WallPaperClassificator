@@ -8,17 +8,17 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
 >
-
-	<Canvas>
-		<InfoBar
-            x:Name="InfoBar"
-			Canvas.ZIndex="1"
-            IsOpen="True"
-            Background="{ThemeResource SystemFillColorSolidAttentionBackgroundBrush}"
-            VerticalAlignment="Bottom"
-		    HorizontalAlignment="Center"
-            IsClosable="True"
-		    Closed="InfoBar_Closed"
-        />
+	<Canvas x:Name="InfoBarCanvas">
+		<StackPanel
+			x:Name="InfoBarPanel"
+			Canvas.Top="-50"
+			Canvas.ZIndex="5"
+		>
+			<StackPanel.ChildrenTransitions>
+				<TransitionCollection>
+					<EntranceThemeTransition />
+				</TransitionCollection>
+			</StackPanel.ChildrenTransitions>
+		</StackPanel>
 	</Canvas>
 </UserControl>
