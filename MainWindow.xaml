@@ -10,12 +10,13 @@
     Title="WallPaperClassificator"
     SizeChanged="CurrentWindow_SizeChanged"
 >
-	<Grid x:Name="BackgroundPanel" Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}">
+	<Grid x:Name="BackgroundPanel" Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}">
 		<NavigationView
 			x:Name="MainNavView"
 			IsBackButtonVisible="Collapsed"
 			Loaded="MainNavView_Loaded"
 			ItemInvoked="MainNavView_ItemInvoked"
+			Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
 		>
 			<NavigationView.MenuItems>
 				<NavigationViewItem Icon="Folder" Content="Classificate" Tag="MainPage" />

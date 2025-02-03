@@ -31,6 +31,7 @@ namespace WallPaperClassificator
 			if (Directory.Exists(path))
 			{
 				// Minimize window and create subwindow.
+				
 			}
 			else
 			{
@@ -43,16 +44,22 @@ namespace WallPaperClassificator
 			FolderPicker picker = new FolderPicker();
 			picker.FileTypeFilter.Add("*");
 
-			nint hWnd = WindowNative.GetWindowHandle(this);
+			MainWindow? instance = MainWindow.Instance;
+			if (instance == null) {
+				ClassificatePopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Failed to Open Folder Picker.");
+				return;
+			}
+			nint hWnd = WindowNative.GetWindowHandle(instance);
 			InitializeWithWindow.Initialize(picker, hWnd);
 
 			StorageFolder? folder = await picker.PickSingleFolderAsync();
 			if (folder != null)
 			{
-				TextBox textBox = (TextBox)sender;
-				if (textBox.Name == "NonClassificatedWallPaperDirPath")
+
+				Button button = (Button)sender;
+				if (button.Name == "NonClassifiedImageDirButton")
 					NonClassifiedImageDirPath.Text = folder.Path;
-				else if (textBox.Name == "SaveImageDirPath")
+				else if (button.Name == "SaveImageDirButton")
 					SaveImageDirPath.Text = folder.Path;
 				else
 					return;

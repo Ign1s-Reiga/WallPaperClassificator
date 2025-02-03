@@ -10,7 +10,6 @@ namespace WallPaperClassificator.Component
 		public PopupInfoBar()
 		{
 			this.InitializeComponent();
-			Canvas.SetLeft(InfoBarPanel, InfoBarCanvas.ActualWidth);
 		}
 
 		public void AddInfoBar(InfoBarSeverity severity, string message)
@@ -19,13 +18,15 @@ namespace WallPaperClassificator.Component
 			{
 				prevInfoBar.IsOpen = false;
 			}
-			InfoBar infoBar = new InfoBar();
+			InfoBar infoBar = new InfoBar
+			{
+				IsOpen = true,
+				Severity = severity,
+				Title = severity.ToString(),
+				Message = message
+			};
 			infoBar.Closed += InfoBar_Closed;
 			infoBar.Loaded += InfoBar_Loaded;
-			infoBar.IsOpen = true;
-			infoBar.Severity = severity;
-			infoBar.Title = severity.ToString();
-			infoBar.Message = message;
 			InfoBarPanel.Children.Add(infoBar);
 		}
 

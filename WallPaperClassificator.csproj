@@ -53,6 +53,9 @@
     <Folder Include="Component\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include=".github\workflow\autorelease.yml" />
+  </ItemGroup>
+  <ItemGroup>
     <Page Update="SettingsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>

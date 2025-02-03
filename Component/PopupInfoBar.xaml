@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
 >
-	<Canvas x:Name="InfoBarCanvas">
+	<Canvas>
 		<StackPanel
 			x:Name="InfoBarPanel"
 			Canvas.Top="-50"

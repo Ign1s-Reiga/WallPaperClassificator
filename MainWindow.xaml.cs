@@ -8,8 +8,10 @@ namespace WallPaperClassificator
 {
 	public sealed partial class MainWindow : Window
 	{
-        public MainWindow()
+		public static MainWindow? Instance { get; private set; }
+		public MainWindow()
 		{
+			Instance = this;
 			this.InitializeComponent();
 			this.Title = "WallPaper Classificator";
 		}

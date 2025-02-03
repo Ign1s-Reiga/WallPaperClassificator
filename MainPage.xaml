@@ -107,7 +107,6 @@
 			Grid.Row="4"
 			Grid.Column="0"
 			HorizontalAlignment="Stretch"
-			Background="Red"
 			x:Name="ClassificatePopupInfoBar"
 		/>
 	</Grid>
