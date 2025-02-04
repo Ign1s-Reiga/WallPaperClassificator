@@ -48,6 +48,22 @@ namespace WallPaperClassificator
 			ClassificateWindow_Resize(800, 96);
 		}
 
+		private void ClassificateWindowExpander_SizeChanged(object sender, SizeChangedEventArgs args)
+		{
+			const int EXPANDER_DEFAULT_HEIGHT = 48;
+			Expander expander = (Expander)sender;
+
+			double desiredHeight = expander.ActualHeight != EXPANDER_DEFAULT_HEIGHT
+				? 96 + expander.ActualHeight - EXPANDER_DEFAULT_HEIGHT
+				: 96;
+			ClassificateWindow_Resize(800, desiredHeight);
+		}
+
+		private void CancelButton_Click(object sender, RoutedEventArgs e)
+		{
+			this.Close();
+		}
+
 		private void ClassificateWindowBackPanel_PointerReleased(object sender, PointerRoutedEventArgs e)
 		{
 			((UIElement)sender).ReleasePointerCapture(e.Pointer);

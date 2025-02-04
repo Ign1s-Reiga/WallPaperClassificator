@@ -31,7 +31,11 @@ namespace WallPaperClassificator
 			if (Directory.Exists(path))
 			{
 				ClassificateWindow clsfWindow = new ClassificateWindow();
+				clsfWindow.Closed += delegate {
+					MainWindow.Instance?.AppWindow.Show();
+				};
 				clsfWindow.Activate();
+				MainWindow.Instance?.AppWindow.Hide();
 			}
 			else
 			{

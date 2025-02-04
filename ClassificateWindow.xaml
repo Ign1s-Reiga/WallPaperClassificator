@@ -16,17 +16,20 @@
 		PointerMoved="ClassificateWindowBackPanel_PointerMoved"
 	>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="*" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 		<Expander
 			Grid.Row="0"
 			Header="To Classificate Image List"
 			HorizontalAlignment="Stretch"
+			HorizontalContentAlignment="Stretch"
+			VerticalAlignment="Bottom"
 			ExpandDirection="Up"
+			SizeChanged="ClassificateWindowExpander_SizeChanged"
 		>
 			<Expander.Content>
-				<ListView Height="400" ItemsSource="{x:Bind StringList}">
+				<ListView MaxHeight="350" ItemsSource="{x:Bind StringList}">
 					<DataTemplate x:DataType="x:String">
 						<TextBlock Text="{x:Bind}" />
 					</DataTemplate>
@@ -37,7 +40,6 @@
 			Grid.Row="1"
 			DefaultLabelPosition="Right"
 			OverflowButtonVisibility="Collapsed"
-			VerticalAlignment="Center"
 			VerticalContentAlignment="Stretch"
 			IsSticky="True"
 			x:Name="ClassificateCommandBar"
@@ -49,7 +51,7 @@
 					HorizontalAlignment="Center"
 				/>
 			</CommandBar.Content>
-			<AppBarButton Icon="Cancel" Label="Cancel" />
+			<AppBarButton Icon="Cancel" Label="Cancel" Click="CancelButton_Click" />
 			<AppBarSeparator />
 			<AppBarButton Icon="Previous" Label="Previous" />
 			<AppBarSeparator />
