@@ -30,8 +30,8 @@ namespace WallPaperClassificator
 
 			if (Directory.Exists(path))
 			{
-				// Minimize window and create subwindow.
-				
+				ClassificateWindow clsfWindow = new ClassificateWindow();
+				clsfWindow.Activate();
 			}
 			else
 			{

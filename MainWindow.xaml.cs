@@ -1,3 +1,4 @@
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
@@ -13,7 +14,8 @@ namespace WallPaperClassificator
 		{
 			Instance = this;
 			this.InitializeComponent();
-			this.Title = "WallPaper Classificator";
+			this.ExtendsContentIntoTitleBar = true;
+			this.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
 		}
 
         private void CurrentWindow_SizeChanged(object sender, WindowSizeChangedEventArgs e)
@@ -34,7 +36,7 @@ namespace WallPaperClassificator
 
 		private void MainNavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
 		{
-			if (args.IsSettingsInvoked)
+			if (args.IsSettingsInvoked && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
 			{
 				sender.Header = "Settings";
 				ContentFrame.Navigate(typeof(SettingsPage));
@@ -51,7 +53,7 @@ namespace WallPaperClassificator
 			Type? pageType = Type.GetType(pageName);
 			if (pageType != null && ContentFrame.CurrentSourcePageType != pageType)
 			{
-				navView.Header = item.Content.ToString();
+				navView.Header = item.Content;
 				ContentFrame.Navigate(pageType, null, info);
 			}
 		}

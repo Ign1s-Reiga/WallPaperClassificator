@@ -13,6 +13,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="ClassificateWindow.xaml" />
     <None Remove="MainPage.xaml" />
     <None Remove="SettingsPage.xaml" />
   </ItemGroup>
@@ -54,6 +55,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include=".github\workflow\autorelease.yml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ClassificateWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="SettingsPage.xaml">

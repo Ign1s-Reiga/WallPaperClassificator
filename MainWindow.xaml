@@ -7,10 +7,10 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="WallPaperClassificator"
+    Title="WallPaper Classificator"
     SizeChanged="CurrentWindow_SizeChanged"
 >
-	<Grid x:Name="BackgroundPanel" Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}">
+	<Grid x:Name="BackgroundPanel" Background="{ThemeResource LayerOnMicaBaseAltFillColorTransparentBrush}">
 		<NavigationView
 			x:Name="MainNavView"
 			IsBackButtonVisible="Collapsed"
