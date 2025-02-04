@@ -49,6 +49,7 @@
 					FontSize="15"
 					Text="Now WallPapered Image.png"
 					HorizontalAlignment="Center"
+					x:Name="CommandBarPathText"
 				/>
 			</CommandBar.Content>
 			<AppBarButton Icon="Cancel" Label="Cancel" Click="CancelButton_Click" />
@@ -56,7 +57,7 @@
 			<AppBarButton Icon="Previous" Label="Previous" />
 			<AppBarSeparator />
 			<AppBarButton Icon="Remove" Label="Except And Next" />
-			<AppBarButton Icon="Add" Label="Save And Next" />
+			<AppBarButton Icon="Add" Label="Save And Next" Click="AddButton_Click" />
 		</CommandBar>
 	</Grid>
 </Window>

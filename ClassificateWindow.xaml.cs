@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using WallPaperClassificator.Util;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics;
@@ -30,6 +31,8 @@ namespace WallPaperClassificator
 		private static extern bool GetCursorPos(out PointInt32 lpPoint);
 
 		public List<String> StringList = ["1", "545", "414", "222"];
+
+		private string defaultWallPaperPath;
 
 		private int posWinX = 0, posWinY = 0, posPressedX = 0, posPressedY = 0;
 		private bool pointerMoving = false;
@@ -62,6 +65,12 @@ namespace WallPaperClassificator
 		private void CancelButton_Click(object sender, RoutedEventArgs e)
 		{
 			this.Close();
+		}
+
+		private void AddButton_Click(object sender, RoutedEventArgs e)
+		{
+			string? now = WallPaperHelper.SetWallPaper("");
+			defaultWallPaperPath = now;
 		}
 
 		private void ClassificateWindowBackPanel_PointerReleased(object sender, PointerRoutedEventArgs e)
