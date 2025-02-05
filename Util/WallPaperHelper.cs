@@ -22,7 +22,8 @@ namespace WallPaperClassificator.Util
 			SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDCHANGE);
 
 			RegistryKey? key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop");
-			string? wallPaperPath = key != null ? (string?)key.GetValue("WallPaper") : null;
+			string? regValue = (string?)key?.GetValue("WallPaper");
+			string wallPaperPath = regValue ?? (string)App.Settings["fallbackWallPaperPath"];
 
 			return wallPaperPath;
 		}

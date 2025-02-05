@@ -32,7 +32,7 @@ namespace WallPaperClassificator
 
 		public List<String> StringList = ["1", "545", "414", "222"];
 
-		private string defaultWallPaperPath;
+		private string? defaultWallPaperPath;
 
 		private int posWinX = 0, posWinY = 0, posPressedX = 0, posPressedY = 0;
 		private bool pointerMoving = false;

@@ -1,18 +1,14 @@
 ﻿using Microsoft.UI.Xaml;
+using System.Collections.Generic;
+using WallPaperClassificator.Util;
 using Windows.UI.ViewManagement;
 
 namespace WallPaperClassificator
 {
-    /// <summary>
-    /// Provides application-specific behavior to supplement the default Application class.
-    /// </summary>
     public partial class App : Application
     {
-        /// <summary>
-        /// Initializes the singleton application object.  This is the first line of authored code
-        /// executed, and as such is the logical equivalent of main() or WinMain().
-        /// </summary>
-        public App()
+        public static Dictionary<string, object> Settings { get; private set; } = new Dictionary<string, object>();
+		public App()
         {
             this.InitializeComponent();
         }
@@ -23,9 +19,15 @@ namespace WallPaperClassificator
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            window = new MainWindow();
+            Settings = SettingsHelper.ReadAppSettings();
+
+			window = new MainWindow();
 			window.Activate();
-        }
+            window.Closed += delegate
+            {
+                SettingsHelper.WriteAppSettings(Settings);
+			};
+		}
 
         private Window? window;
     }
