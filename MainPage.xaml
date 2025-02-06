@@ -34,9 +34,9 @@
 			<TextBox
 				Grid.Row="0"
 				Grid.Column="0"
-				Header="Path to Non-Classified Image Directory"
+				Header="Path to Unclassified Image Directory"
 				PlaceholderText="path/to/"
-				x:Name="NonClassifiedImageDirPath"
+				x:Name="UnclassifiedImageDirPath"
 			/>
 			<Button
 				Grid.Row="0"
@@ -44,7 +44,7 @@
 				Content="Select"
 				VerticalAlignment="Bottom"
 				Click="SelectFolder_Click"
-				x:Name="NonClassifiedImageDirButton"
+				x:Name="UnclassifiedImageDirButton"
 			/>
 		</Grid>
 		<Grid
@@ -61,6 +61,7 @@
 				Grid.Column="0"
 				Header="Path to Save Directory"
 				PlaceholderText="path/to/"
+				ToolTipService.ToolTip="If this field is empty, a save directory is created on the same level as the unclassified image directory."
 				x:Name="SaveImageDirPath"
 			/>
 			<Button

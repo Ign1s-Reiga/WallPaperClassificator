@@ -21,12 +21,12 @@ namespace WallPaperClassificator
 
 		private void StartClassificate_Click(object sender, RoutedEventArgs args)
 		{
-			if (NonClassifiedImageDirPath.Text.Length == 0)
+			if (UnclassifiedImageDirPath.Text.Length == 0)
 			{
 				ClassificatePopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Please select the folder where the images are stored.");
 				return;
 			}
-			string path = NonClassifiedImageDirPath.Text;
+			string path = UnclassifiedImageDirPath.Text;
 
 			if (Directory.Exists(path))
 			{
@@ -62,7 +62,7 @@ namespace WallPaperClassificator
 
 				Button button = (Button)sender;
 				if (button.Name == "NonClassifiedImageDirButton")
-					NonClassifiedImageDirPath.Text = folder.Path;
+					UnclassifiedImageDirPath.Text = folder.Path;
 				else if (button.Name == "SaveImageDirButton")
 					SaveImageDirPath.Text = folder.Path;
 				else
