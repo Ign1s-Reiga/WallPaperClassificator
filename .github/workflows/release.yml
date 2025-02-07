@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Release]
-        platform: [x86,x64]
+        platform: [win-x86,win-x64]
     runs-on: windows-latest
     env:
       Solution_Name: 'WallPaperClassificator.sln'
@@ -47,7 +47,7 @@ jobs:
         dotnet publish $env:Project_Name 
         -c $env:Configuration
         -r $env:Platform
-        -p:PublishProfile="win-${{ env.Platform }}"
+        -p:PublishProfile=$env:Platform"
         -p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode
         -p:AppxBundle=$env:Appx_Bundle
         -p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx
