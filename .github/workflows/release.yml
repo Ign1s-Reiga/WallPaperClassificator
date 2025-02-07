@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         configuration: [Release]
-        platform: [x86,x64]
+        platform: [win-x86,win-x64]
     runs-on: windows-latest
     env:
       Solution_Name: 'WallPaperClassificator.sln'
@@ -29,9 +29,9 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Restore the Application
-      run: dotnet restore --runtime $env:Platform
+      run: dotnet msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
       env:
-        Platform: ${{ matrix.platform }}
+        Configuration: ${{ matrix.configuration }}
 
     - name: Decode the pfx
       run: |
@@ -48,7 +48,7 @@ jobs:
         --configuration $env:Configuration
         --runtime $env:Platform
         --no-restore
-        -p:PublishProfile=Properties\PublishProfiles\win-${{ env.Platform }}.pubxml
+        -p:PublishProfile=Properties\PublishProfiles\${{ env.Platform }}.pubxml
         -p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode
         -p:AppxBundle=$env:Appx_Bundle
         -p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx
