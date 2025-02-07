@@ -54,7 +54,7 @@
     <Folder Include="Component\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".github\workflow\release.yml" />
+    <None Include=".github\workflows\release.yml" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="ClassificateWindow.xaml">

@@ -23,21 +23,15 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Debug Current Directory
-      run: Get-Location
-
     - name: Install .NET Core SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v2
-
     - name: Restore the Application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+      run: dotnet restore --runtime $env:Platform
       env:
-        Configuration: ${{ matrix.configuration }}
+        Platform: ${{ matrix.platform }}
 
     - name: Decode the pfx
       run: |
@@ -45,16 +39,20 @@ jobs:
         $certificatePath = "GitHubActionsWorkflow.pfx"
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
+    - name: Build App
+      run: dotnet build --configuration Release --no-restore
+
     - name: Create App Package
       run: >
         dotnet publish $env:Project_Name
         --configuration $env:Configuration
         --runtime $env:Platform
-        -p:PublishProfile=.\WallPaperClassificator\Properties\PublishProfiles\${{ env.Platform }}.pubxml
+        --no-restore
+        -p:PublishProfile=Properties\PublishProfiles\${{ env.Platform }}.pubxml
         -p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode
         -p:AppxBundle=$env:Appx_Bundle
         -p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx
-        -p:AppxPackageDir=${{ env.Appx_Package_Dir }}
+        -p:AppxPackageDir="$env:Appx_Package_Dir"
         -p:GenerateAppxPackageOnBuild=true
       env:
         Appx_Bundle: Never
