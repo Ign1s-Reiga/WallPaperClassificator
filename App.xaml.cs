@@ -8,19 +8,17 @@ namespace WallPaperClassificator
     public partial class App : Application
     {
         public static Dictionary<string, object> Settings { get; private set; } = new Dictionary<string, object>();
+
 		public App()
         {
-            this.InitializeComponent();
+			Settings = SettingsHelper.ReadAppSettings();
+			this.RequestedTheme = SettingsHelper.GetApplicationThemeFromInt((int)Settings["appTheme"]);
+
+			this.InitializeComponent();
         }
 
-        /// <summary>
-        /// Invoked when the application is launched.
-        /// </summary>
-        /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            Settings = SettingsHelper.ReadAppSettings();
-
 			window = new MainWindow();
 			window.Activate();
             window.Closed += delegate
@@ -29,6 +27,6 @@ namespace WallPaperClassificator
 			};
 		}
 
-        private Window? window;
+		private Window? window;
     }
 }

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using WallPaperClassificator.Util;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -20,6 +21,18 @@ namespace WallPaperClassificator
 		public SettingsPage()
 		{
 			this.InitializeComponent();
+		}
+
+		private void SaveButton_Click(object sender, RoutedEventArgs e)
+		{
+			ApplicationTheme theme = SettingsHelper.GetApplicationThemeFromInt(AppThemeSettings.SelectedIndex);
+			// SettingsHelper.SetAppTheme(theme); need restart app.
+			App.Settings["appTheme"] = AppThemeSettings.SelectedIndex;
+		}
+
+		private void SettingsPage_Loading(FrameworkElement sender, object args)
+		{
+			AppThemeSettings.SelectedIndex = (int)App.Settings["appTheme"];
 		}
 	}
 }

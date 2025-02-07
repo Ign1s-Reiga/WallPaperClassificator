@@ -7,8 +7,47 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+	Loading="SettingsPage_Loading"
 >
-	<Grid Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}">
-		<TextBlock Text="This is Settings Page." />
-	</Grid>
+	<ScrollView IsTabStop="True">
+		<Grid Padding="36,40" RowSpacing="32">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+			<Grid Grid.Row="0" Grid.Column="0" x:Name="GeneralSettings">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="General" FontSize="20" FontWeight="Bold" />
+				<ComboBox Grid.Row="1" Grid.Column="0" Header="App Theme" x:Name="AppThemeSettings" Margin="0,16,0,0">
+					<x:String>Light</x:String>
+					<x:String>Dark</x:String>
+				</ComboBox>
+			</Grid>
+			<Grid Grid.Row="1" Grid.Column="1">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+				</Grid.RowDefinitions>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="Classificate" FontSize="20" FontWeight="Bold" />
+				<TextBox Grid.Row="1" Grid.Column="0" Header="Fallback Wallpaper Path" Tag="FallbackWallPaperPathSettings" Margin="0,16,0,0" />
+			</Grid>
+			<Button
+				Grid.Row="2"
+				Grid.Column="0"
+				Style="{StaticResource AccentButtonStyle}"
+				HorizontalAlignment="Right"
+				Click="SaveButton_Click"
+				Width="200"
+			>
+				<StackPanel Orientation="Horizontal">
+					<SymbolIcon Symbol="Save" Margin="0,0,8,0" />
+					<TextBlock Text="Save" VerticalAlignment="Center" />
+				</StackPanel>
+			</Button>
+		</Grid>
+	</ScrollView>
 </Page>

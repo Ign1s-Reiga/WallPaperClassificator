@@ -48,12 +48,7 @@ namespace WallPaperClassificator
 			FolderPicker picker = new FolderPicker();
 			picker.FileTypeFilter.Add("*");
 
-			MainWindow? instance = MainWindow.Instance;
-			if (instance == null) {
-				ClassificatePopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Failed to Open Folder Picker.");
-				return;
-			}
-			nint hWnd = WindowNative.GetWindowHandle(instance);
+			nint hWnd = WindowNative.GetWindowHandle(MainWindow.Instance);
 			InitializeWithWindow.Initialize(picker, hWnd);
 
 			StorageFolder? folder = await picker.PickSingleFolderAsync();

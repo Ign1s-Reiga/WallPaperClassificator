@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualBasic.FileIO;
+﻿using Microsoft.UI.Xaml;
+using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +9,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Windows.Devices.Spi;
 using Windows.Foundation.Collections;
 using Windows.Services.Maps;
 using Windows.Storage;
@@ -16,7 +18,8 @@ namespace WallPaperClassificator.Util
 {
 	public class SettingsHelper
 	{
-		private static readonly Dictionary<string, string> defaultSetting = new Dictionary<string, string>() {
+		private static readonly Dictionary<string, object> defaultSettings = new Dictionary<string, object>() {
+			{ "appTheme", 0 },
 			{  "fallbackWallPaperPath", @"C:\Windows\Web\Wallpaper\Windows\img0.jpg" }
 		};
 		private static readonly uint settingsVersion = 1;
@@ -25,12 +28,16 @@ namespace WallPaperClassificator.Util
 		public static Dictionary<string, object> ReadAppSettings()
 		{
 			ApplicationData current = ApplicationData.Current;
-			if (current.LocalSettings.Values.Count() == 0)
-				InitializeAppSettings(current, false);
-			else if (current.Version < settingsVersion)
-				InitializeAppSettings(current, true);
+			bool isFulfilled = Task.Run(async () =>
+			{
+				if (current.LocalSettings.Values.Count() == 0)
+					await InitializeAppSettingsAsync(current, false);
+				else if (current.Version < settingsVersion)
+					await InitializeAppSettingsAsync(current, true);
+			}).Wait(TimeSpan.FromMinutes(5));
 
-			return current.LocalSettings.Values.ToDictionary();
+
+			return isFulfilled ? current.LocalSettings.Values.ToDictionary() : defaultSettings;
 		}
 
 		// Write settings to app settings
@@ -42,23 +49,35 @@ namespace WallPaperClassificator.Util
 		}
 
 		// Initialize app settings
-		public static void InitializeAppSettings(ApplicationData current, bool upgrade)
+		public static async Task InitializeAppSettingsAsync(ApplicationData current, bool upgrade)
 		{
 			ApplicationDataContainer previousSettings = current.LocalSettings;
-			Task.Run(async () =>
+			await current.SetVersionAsync(settingsVersion, handler =>
 			{
-				await current.SetVersionAsync(settingsVersion, handler =>
+				Debug.WriteLine((upgrade ? "Upgrading" : "Initializing") + $" Settings: {handler.DesiredVersion}");
+				foreach (KeyValuePair<string, object> settings in defaultSettings)
 				{
-					Debug.WriteLine((upgrade ? "Upgrading" : "Initializing") + $" Settings: {handler.DesiredVersion}");
-					foreach (KeyValuePair<string, string> settings in defaultSetting)
-					{
-						if (upgrade && previousSettings.Values.TryGetValue(settings.Key, out object? value))
-							current.LocalSettings.Values[settings.Key] = value;
-						else
-							current.LocalSettings.Values[settings.Key] = settings.Value;
-					}
-				});
+					if (upgrade && previousSettings.Values.TryGetValue(settings.Key, out object? value))
+						current.LocalSettings.Values[settings.Key] = value;
+					else
+						current.LocalSettings.Values[settings.Key] = settings.Value;
+				}
 			});
+		}
+
+		public static ApplicationTheme GetApplicationThemeFromInt(int theme)
+		{
+			return theme switch
+			{
+				0 => ApplicationTheme.Light,
+				1 => ApplicationTheme.Dark,
+				_ => ApplicationTheme.Light
+			};
+		}
+
+		public static void SetAppTheme(ApplicationTheme theme)
+		{
+			App.Current.RequestedTheme = theme;
 		}
 	}
 }
