@@ -1,84 +1,84 @@
 name: "Build And Release"
 on:
-	workflow_dispatch:
-		inputs:
-			version:
-				description: 'Version to build and release'
-				required: true
-				type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build and release'
+        required: true
+        type: string
 
 jobs:
-	build:
-		strategy:
-			matrix:
-				configuration: [Release]
-				platform: [x86,x64]
-		runs-on: windows-latest
-		env:
-			solution-name: 'WallPaperClassificator.sln'
-		steps:
-		- name: Checkout
-			uses: actions/checkout@v4
-			with:
-				fetch-depth: 0
+  build:
+    strategy:
+      matrix:
+        configuration: [Release]
+        platform: [x86,x64]
+    runs-on: windows-latest
+    env:
+      solution-name: 'WallPaperClassificator.sln'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
-		- name: Install .NET Core SDK
-			uses: actions/setup-dotnet@v4
-			with:
-				dotnet-version: 8.0.x
+    - name: Install .NET Core SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
 
-		- name: Setup MSBuild
-			uses: microsoft/setup-msbuild@v2
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
 
-		- name: Restore the Application
-			run: msbuild $env:solution-name /t:Restore /p:Configuration=$env:Configuration
-			env:
-				Configuration: ${{ matrix.configuration }}
+    - name: Restore the Application
+      run: msbuild $env:solution-name /t:Restore /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
 
-		- name: Decode the pfx
-			run: |
-				$pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.BASE64_ENCODED_PFX }}")
-				$certificatePath = "GitHubActionsWorkflow.pfx"
-				[IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
+    - name: Decode the pfx
+      run: |
+        $pfx_cert_byte = [System.Convert]::FromBase64String("${{ secrets.BASE64_ENCODED_PFX }}")
+        $certificatePath = "GitHubActionsWorkflow.pfx"
+        [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
-		- name: Create App Package
-			run: msbuild $env:solution-name /p:Configuration=$env:configuration /p:Platform=$env:Platform /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:AppxPackageDir="$env:Appx_Package_Dir" /p:GenerateAppxPackageOnBuild=true
-			env:
-				Appx_Bundle: Never
-				Appx_Package_Build_Mode: SideloadOnly
-				Appx_Package_Dir: Packages\
-				Configuration: ${{ matrix.configuration }}
-				Platform: ${{ matrix.platform }}
+    - name: Create App Package
+      run: msbuild $env:solution-name /p:Configuration=$env:configuration /p:Platform=$env:Platform /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:AppxPackageDir="$env:Appx_Package_Dir" /p:GenerateAppxPackageOnBuild=true
+      env:
+        Appx_Bundle: Never
+        Appx_Package_Build_Mode: SideloadOnly
+        Appx_Package_Dir: Packages\
+        Configuration: ${{ matrix.configuration }}
+        Platform: ${{ matrix.platform }}
 
-		- name: Remove the pfx
-			run: Remove-Item -path GitHubActionsWorkflow.pfx
+    - name: Remove the pfx
+      run: Remove-Item -path GitHubActionsWorkflow.pfx
 
-	create-release:
-		runs-on: windows-latest
-		needs: [build]
+  create-release:
+    runs-on: windows-latest
+    needs: [build]
 
-		steps:
-			- name: Checkout
-				uses: actions/checkout@v4
-				with:
-					fetch-depth: 0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-			- name: Get Release Builds
-				id: get_release_builds
-				run: |
-					$builds = Get-ChildItem -Path "Packages" -Directory -Name
-					$dirnames = ""
-					$builds | ForEach-Object { $dirnames += $_.Replace("_Test", "") + "," }
-					echo "dirnames=$dirnames" >> $ENV:GITHUB_OUTPUT
+      - name: Get Release Builds
+        id: get_release_builds
+        run: |
+          $builds = Get-ChildItem -Path "Packages" -Directory -Name
+          $dirnames = ""
+          $builds | ForEach-Object { $dirnames += $_.Replace("_Test", "") + "," }
+          echo "dirnames=$dirnames" >> $ENV:GITHUB_OUTPUT
 
-			- name: Create Release
-				id: create_release
-				uses: ncipollo/release-action@v1
-				with:
-					tag_name: ${{ github.event.inputs.version }}
-					release_name: Release ${{ github.event.inputs.version }}
-					body: |
-						Release ${{ github.event.inputs.version }}
-					draft: true
-					prerelease: false
-					artifacts: ${{ steps.get_release_builds.outputs.dirnames }}
+      - name: Create Release
+        id: create_release
+        uses: ncipollo/release-action@v1
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          release_name: Release ${{ github.event.inputs.version }}
+          body: |
+            Release ${{ github.event.inputs.version }}
+          draft: true
+          prerelease: false
+          artifacts: ${{ steps.get_release_builds.outputs.dirnames }}
