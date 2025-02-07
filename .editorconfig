@@ -193,5 +193,5 @@ dotnet_naming_style.パスカル_ケース.word_separator =
 dotnet_naming_style.パスカル_ケース.capitalization = pascal_case
 
 [*.{yml,yaml}]
-intent_style = tab
+intent_style = space
 indent_size = 2
