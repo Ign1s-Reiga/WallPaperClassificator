@@ -47,7 +47,7 @@ jobs:
         dotnet publish $env:Project_Name 
         -c $env:Configuration
         -r $env:Platform
-        -p:PublishProfile=$env:Platform"
+        -p:PublishProfile=$env:Platform
         -p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode
         -p:AppxBundle=$env:Appx_Bundle
         -p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx
