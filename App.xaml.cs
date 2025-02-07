@@ -1,7 +1,6 @@
 ﻿using Microsoft.UI.Xaml;
 using System.Collections.Generic;
 using WallPaperClassificator.Util;
-using Windows.UI.ViewManagement;
 
 namespace WallPaperClassificator
 {

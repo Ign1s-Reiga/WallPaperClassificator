@@ -1,17 +1,9 @@
 ﻿using Microsoft.UI.Xaml;
-using Microsoft.VisualBasic.FileIO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
-using Windows.Devices.Spi;
-using Windows.Foundation.Collections;
-using Windows.Services.Maps;
 using Windows.Storage;
 
 namespace WallPaperClassificator.Util

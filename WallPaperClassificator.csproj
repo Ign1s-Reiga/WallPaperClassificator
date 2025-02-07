@@ -54,7 +54,7 @@
     <Folder Include="Component\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".github\workflow\autorelease.yml" />
+    <None Include=".github\workflow\release.yml" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="ClassificateWindow.xaml">
@@ -88,4 +88,7 @@
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\PrivateProject\WallPaperClassificator\.editorconfig" />
+  </ItemGroup>
 </Project>
