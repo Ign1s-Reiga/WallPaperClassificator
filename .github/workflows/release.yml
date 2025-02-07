@@ -45,9 +45,9 @@ jobs:
     - name: Create App Package
       run: >
         dotnet publish $env:Project_Name 
-        -c $env:Configuration
-        -r $env:Platform
-        -p:PublishProfile=$env:Platform
+        --configuration $env:Configuration
+        --runtime $env:Platform
+        -p:PublishProfile=.\Properties\PublishProfiles\${{ $env.Platform }}.pubxml
         -p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode
         -p:AppxBundle=$env:Appx_Bundle
         -p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx
