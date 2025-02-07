@@ -39,9 +39,6 @@ jobs:
         $certificatePath = "GitHubActionsWorkflow.pfx"
         [IO.File]::WriteAllBytes("$certificatePath", $pfx_cert_byte)
 
-    - name: Build App
-      run: dotnet build --configuration Release --no-restore
-
     - name: Create App Package
       run: >
         dotnet publish $env:Project_Name
