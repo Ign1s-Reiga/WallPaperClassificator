@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Page
-    x:Class="WallPaperClassificator.MainPage"
+    x:Class="WallPaperClassificator.ClassificatePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:WallPaperClassificator"
-	xmlns:comp="using:WallPaperClassificator.Component"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:comp="using:WallPaperClassificator.Component"
     mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
 >
 	<Grid
         HorizontalAlignment="Stretch"
@@ -107,7 +108,7 @@
 			Grid.Row="4"
 			Grid.Column="0"
 			HorizontalAlignment="Stretch"
-			x:Name="ClassificatePopupInfoBar"
+			x:Name="PopupInfoBar"
 		/>
 	</Grid>
 </Page>

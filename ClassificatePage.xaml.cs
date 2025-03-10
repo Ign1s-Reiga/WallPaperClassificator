@@ -1,19 +1,28 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
 using Windows.Storage.Pickers;
 using Windows.Storage;
 using WinRT.Interop;
 
 namespace WallPaperClassificator
 {
-	public sealed partial class MainPage : Page
+	public sealed partial class ClassificatePage : Page
 	{
 		public List<string> Files { get; set; }
 
-		public MainPage()
+		public ClassificatePage()
 		{
 			Files = []; // The Array of Classificated Files' Path.
 			this.InitializeComponent();
@@ -23,7 +32,7 @@ namespace WallPaperClassificator
 		{
 			if (UnclassifiedImageDirPath.Text.Length == 0)
 			{
-				ClassificatePopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Please select the folder where the images are stored.");
+				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Please select the folder where the images are stored.");
 				return;
 			}
 			string path = UnclassifiedImageDirPath.Text;
@@ -39,7 +48,7 @@ namespace WallPaperClassificator
 			}
 			else
 			{
-				ClassificatePopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "The folder does not exist.");
+				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "The folder does not exist.");
 			}
 		}
 

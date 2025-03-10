@@ -1,9 +1,19 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
-using System;
-using System.Linq;
+using Microsoft.UI.Xaml.Navigation;
+using Windows.Foundation;
+using Windows.Foundation.Collections;
 
 namespace WallPaperClassificator
 {
@@ -18,15 +28,15 @@ namespace WallPaperClassificator
 			this.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
 		}
 
-        private void CurrentWindow_SizeChanged(object sender, WindowSizeChangedEventArgs e)
+		private void CurrentWindow_SizeChanged(object sender, WindowSizeChangedEventArgs args)
 		{
-			BackgroundPanel.Width = e.Size.Width;
-			BackgroundPanel.Height = e.Size.Height;
+			BackgroundPanel.Width = args.Size.Width;
+			BackgroundPanel.Height = args.Size.Height;
 		}
 
 		private void MainNavView_Loaded(object sender, RoutedEventArgs e)
 		{
-			// TODO: Add Home
+			// TODO: Add HOME
 			if (MainNavView.MenuItems.First() is NavigationViewItem item)
 			{
 				MainNavView.SelectedItem = item;
@@ -39,7 +49,7 @@ namespace WallPaperClassificator
 			if (args.IsSettingsInvoked && ContentFrame.CurrentSourcePageType != typeof(SettingsPage))
 			{
 				sender.Header = "Settings";
-				ContentFrame.Navigate(typeof(SettingsPage));
+				ContentFrame.Navigate(typeof(SettingsPage), null, new EntranceNavigationTransitionInfo());
 			}
 			else if (sender.SelectedItem is NavigationViewItem item)
 			{

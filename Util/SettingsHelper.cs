@@ -66,10 +66,5 @@ namespace WallPaperClassificator.Util
 				_ => ApplicationTheme.Light
 			};
 		}
-
-		public static void SetAppTheme(ApplicationTheme theme)
-		{
-			App.Current.RequestedTheme = theme;
-		}
 	}
 }

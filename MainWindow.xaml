@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="WallPaper Classificator"
-    SizeChanged="CurrentWindow_SizeChanged"
+	SizeChanged="CurrentWindow_SizeChanged"
 >
 	<Grid x:Name="BackgroundPanel" Background="{ThemeResource LayerOnMicaBaseAltFillColorTransparentBrush}">
 		<NavigationView
@@ -19,10 +19,10 @@
 			Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
 		>
 			<NavigationView.MenuItems>
-				<NavigationViewItem Icon="Folder" Content="Classificate" Tag="MainPage" />
-				<NavigationViewItem Icon="Pictures" Content="Slideshow" Tag="MainPage" />
+				<NavigationViewItem Icon="Folder" Content="Classificate" Tag="ClassificatePage" />
+				<NavigationViewItem Icon="Pictures" Content="Slideshow" Tag="ClassificatePage" />
 			</NavigationView.MenuItems>
-			<Frame x:Name="ContentFrame"/>
+			<Frame x:Name="ContentFrame" />
 		</NavigationView>
 	</Grid>
 </Window>
