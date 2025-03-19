@@ -76,7 +76,6 @@
             SelectionMode="None"
             Background="{ThemeResource LayerFillColorAltBrush}"
             HorizontalAlignment="Stretch"
-			
         >
 			<ListView.ItemTemplate>
 				<DataTemplate x:DataType="x:String">
@@ -86,7 +85,7 @@
 							<ColumnDefinition Width="*" />
 						</Grid.ColumnDefinitions>
 						<Image Stretch="None" Width="50" Height="50" Source="{x:Bind}" />
-						<TextBlock Text="{x:Bind}" />
+						<TextBlock Grid.Column="1" Text="{x:Bind}" />
 					</Grid>
 				</DataTemplate>
 			</ListView.ItemTemplate>

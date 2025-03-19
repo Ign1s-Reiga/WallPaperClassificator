@@ -46,9 +46,15 @@
 								FontWeight="Bold"
 								Margin="0,0,0,12"
 								Text="Classificate Progress will not be saved. Are you sure to cancel?"
+								TextWrapping="Wrap"
 								x:Name="CloseClassificateWindowConfirmation"
 							/>
-							<Button Content="Yes" Click="CancelButton_Click" />
+							<Button
+								Content="Yes"
+								Width="100"
+								HorizontalAlignment="Right"
+								Click="CancelButton_Click"
+							/>
 						</StackPanel>
 					</Flyout>
 				</AppBarButton.Flyout>
@@ -96,13 +102,13 @@
 					RefreshRequested="ClassificateRefreshContainer_RefreshRequested"
 				>
 					<ListView
-					MaxHeight="350"
-					SelectionMode="Single"
-					ItemsSource="{x:Bind FileList, Mode=TwoWay}"
-					IsTapEnabled="False"
-					SelectionChanged="ClassificateWindowListView_SelectionChanged"
-					x:Name="ClassificateListView"
-				>
+						MaxHeight="350"
+						SelectionMode="Single"
+						ItemsSource="{x:Bind FileList, Mode=TwoWay}"
+						IsTapEnabled="False"
+						SelectionChanged="ClassificateWindowListView_SelectionChanged"
+						x:Name="ClassificateListView"
+					>
 						<ListView.ItemTemplate>
 							<DataTemplate x:DataType="local:ClassificateListItemData">
 								<Grid>

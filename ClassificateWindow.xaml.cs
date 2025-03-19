@@ -34,7 +34,6 @@ namespace WallPaperClassificator
 		public List<ClassificateListItemData> FileList = [];
 
 		private readonly string unclassifiedImageDirPath;
-		private readonly string saveDirPath;
 		private readonly string defaultWallPaperPath;
 		private readonly List<ClassificateListItemData> classifiedImageList;
 		private readonly List<string> acceptableImgExtList = [".jpg", ".jpeg", ".bmp", ".png", ".jfif", ".gif", ".tif", ".tiff"];
@@ -45,10 +44,9 @@ namespace WallPaperClassificator
 		private bool isClassificationFinished = false;
 		private ClassificateCommand nextClassificateCommand = ClassificateCommand.Add;
 
-		public ClassificateWindow(string unclassifiedImageDirPath, string saveDirPath, List<ClassificateListItemData> classifiedImageList)
+		public ClassificateWindow(string unclassifiedImageDirPath, List<ClassificateListItemData> classifiedImageList)
 		{
 			this.unclassifiedImageDirPath = unclassifiedImageDirPath;
-			this.saveDirPath = saveDirPath;
 			this.defaultWallPaperPath = WallPaperHelper.GetWallPaper();
 			this.classifiedImageList = classifiedImageList;
 
@@ -87,11 +85,12 @@ namespace WallPaperClassificator
 			{
 				return;
 			}
+			// TODO: Blur the ListView while changing the background
 			ClassificateListItemData wallPaperItem = (ClassificateListItemData)args.AddedItems[0];
-			SetButtonState(false);
+			SetControlState(false);
 			CommandBarPathText.Text = wallPaperItem.FileName;
 			await Task.Run(() => WallPaperHelper.SetWallPaper(Path.Combine(this.unclassifiedImageDirPath, wallPaperItem.FileName)));
-			SetButtonState(true);
+			SetControlState(true);
 		}
 
 		private void ClassificateWindowExpander_SizeChanged(object sender, SizeChangedEventArgs args)
@@ -110,7 +109,7 @@ namespace WallPaperClassificator
 			Deferral refreshCompletionDeferral = args.GetDeferral();
 
 			// Disable buttons while refreshing
-			SetButtonState(false);
+			SetControlState(false);
 			this.selectedIndexCache = ClassificateListView.SelectedIndex;
 			ClassificateListItemData oldItem = FileList.ElementAt(ClassificateListView.SelectedIndex);
 			ClassificateListItemData newItem = default!;
@@ -132,15 +131,14 @@ namespace WallPaperClassificator
 					}; // Check symbol
 					break;
 			}
-			ReplaceToNewListViewItem(ClassificateListView.SelectedIndex, newItem);
-
 			isClassificationFinished = ClassificateListView.SelectedIndex == FileList.Count - 1;
 			if (isClassificationFinished)
 			{
-				CloseClassificateWindowConfirmation.Text = "Classificate Progress will be reflected to App Main Window. Do you want to close the window? ";
+				CloseClassificateWindowConfirmation.Text = $"Classificate Progress will be reflected to App Main Window.{Environment.NewLine}Do you want to close the window?";
 			}
+			ReplaceToNewListViewItem(ClassificateListView.SelectedIndex, newItem);
 
-			SetButtonState(true);
+			SetControlState(true);
 			
 			refreshCompletionDeferral.Complete();
 			refreshCompletionDeferral.Dispose();
@@ -167,11 +165,12 @@ namespace WallPaperClassificator
 			ClassificateListView.ItemsSource = updatedFileList;
 		}
 
-		private void SetButtonState(bool newButtonState)
+		private void SetControlState(bool newControlState)
 		{
-			SaveButton.IsEnabled = newButtonState;
-			ExceptButton.IsEnabled = newButtonState;
-			PreviousButton.IsEnabled = newButtonState ? ClassificateListView.SelectedIndex > 0 : false;
+			ClassificateListView.IsEnabled = newControlState;
+			SaveButton.IsEnabled = newControlState;
+			ExceptButton.IsEnabled = newControlState;
+			PreviousButton.IsEnabled = newControlState ? ClassificateListView.SelectedIndex > 0 : false;
 		}
 
 		private void PreviousButton_Click(object sender, RoutedEventArgs e)

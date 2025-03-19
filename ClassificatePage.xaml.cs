@@ -21,11 +21,10 @@ namespace WallPaperClassificator
 {
 	public sealed partial class ClassificatePage : Page
 	{
-		public List<string> Files { get; set; }
+		public List<string> Files = [];
 
 		public ClassificatePage()
 		{
-			Files = []; // The Array of Classificated Files' Path.
 			this.InitializeComponent();
 		}
 
@@ -46,7 +45,7 @@ namespace WallPaperClassificator
 			if (Directory.Exists(UnclassifiedImageDirPath.Text) && Directory.Exists(SaveImageDirPath.Text))
 			{
 				List<ClassificateListItemData> classifiedImageList = new List<ClassificateListItemData>();
-				ClassificateWindow clsfWindow = new ClassificateWindow(UnclassifiedImageDirPath.Text, SaveImageDirPath.Text, classifiedImageList);
+				ClassificateWindow clsfWindow = new ClassificateWindow(UnclassifiedImageDirPath.Text, classifiedImageList);
 				clsfWindow.Closed += delegate {
 					MainWindow.Instance.AppWindow.Show();
 					classifiedImageList.ForEach((item) =>
