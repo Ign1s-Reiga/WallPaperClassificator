@@ -15,6 +15,7 @@ using Windows.Foundation.Collections;
 using Windows.Storage.Pickers;
 using Windows.Storage;
 using WinRT.Interop;
+using System.Diagnostics;
 
 namespace WallPaperClassificator
 {
@@ -35,16 +36,26 @@ namespace WallPaperClassificator
 				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Please select the folder where the images are stored.");
 				return;
 			}
-			string path = UnclassifiedImageDirPath.Text;
-
-			if (Directory.Exists(path))
+			// This condition will delete when ClassificateWindow is completely implemented.
+			if (SaveImageDirPath.Text.Length == 0)
 			{
-				ClassificateWindow clsfWindow = new ClassificateWindow();
+				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Please select the folder that will used to save the images.");
+				return;
+			}
+
+			if (Directory.Exists(UnclassifiedImageDirPath.Text) && Directory.Exists(SaveImageDirPath.Text))
+			{
+				List<ClassificateListItemData> classifiedImageList = new List<ClassificateListItemData>();
+				ClassificateWindow clsfWindow = new ClassificateWindow(UnclassifiedImageDirPath.Text, SaveImageDirPath.Text, classifiedImageList);
 				clsfWindow.Closed += delegate {
-					MainWindow.Instance?.AppWindow.Show();
+					MainWindow.Instance.AppWindow.Show();
+					classifiedImageList.ForEach((item) =>
+					{
+						Debug.WriteLine($"Classified Image: {item.FileName}");
+					});
 				};
 				clsfWindow.Activate();
-				MainWindow.Instance?.AppWindow.Hide();
+				MainWindow.Instance.AppWindow.Hide();
 			}
 			else
 			{
@@ -65,7 +76,7 @@ namespace WallPaperClassificator
 			{
 
 				Button button = (Button)sender;
-				if (button.Name == "NonClassifiedImageDirButton")
+				if (button.Name == "UnclassifiedImageDirButton")
 					UnclassifiedImageDirPath.Text = folder.Path;
 				else if (button.Name == "SaveImageDirButton")
 					SaveImageDirPath.Text = folder.Path;

@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
+	Title="WallPaper Classificator - Classificate"
 >
 	<Grid
 		x:Name="ClassificateWindowBackPanel"
@@ -19,45 +20,104 @@
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
-		<Expander
-			Grid.Row="0"
-			Header="To Classificate Image List"
-			HorizontalAlignment="Stretch"
-			HorizontalContentAlignment="Stretch"
-			VerticalAlignment="Bottom"
-			ExpandDirection="Up"
-			SizeChanged="ClassificateWindowExpander_SizeChanged"
-		>
-			<Expander.Content>
-				<ListView MaxHeight="350" ItemsSource="{x:Bind StringList}">
-					<DataTemplate x:DataType="x:String">
-						<TextBlock Text="{x:Bind}" />
-					</DataTemplate>
-				</ListView>
-			</Expander.Content>
-		</Expander>
 		<CommandBar
-			Grid.Row="1"
 			DefaultLabelPosition="Right"
 			OverflowButtonVisibility="Collapsed"
 			VerticalContentAlignment="Stretch"
 			IsSticky="True"
+			Padding="24,0"
 			x:Name="ClassificateCommandBar"
 		>
 			<CommandBar.Content>
 				<TextBlock
 					FontSize="15"
-					Text="Now WallPapered Image.png"
-					HorizontalAlignment="Center"
+					Text="None is selected."
+					HorizontalAlignment="Stretch"
+					VerticalAlignment="Center"
+					TextTrimming="CharacterEllipsis"
 					x:Name="CommandBarPathText"
 				/>
 			</CommandBar.Content>
-			<AppBarButton Icon="Cancel" Label="Cancel" Click="CancelButton_Click" />
+			<AppBarButton Icon="Cancel" Label="Cancel">
+				<AppBarButton.Flyout>
+					<Flyout>
+						<StackPanel>
+							<TextBlock
+								FontWeight="Bold"
+								Margin="0,0,0,12"
+								Text="Classificate Progress will not be saved. Are you sure to cancel?"
+								x:Name="CloseClassificateWindowConfirmation"
+							/>
+							<Button Content="Yes" Click="CancelButton_Click" />
+						</StackPanel>
+					</Flyout>
+				</AppBarButton.Flyout>
+			</AppBarButton>
 			<AppBarSeparator />
-			<AppBarButton Icon="Previous" Label="Previous" />
+			<AppBarButton
+				Icon="Previous"
+				Label="Previous"
+				IsEnabled="False"
+				Click="PreviousButton_Click"
+				x:Name="PreviousButton"
+			/>
 			<AppBarSeparator />
-			<AppBarButton Icon="Remove" Label="Except And Next" />
-			<AppBarButton Icon="Add" Label="Save And Next" Click="AddButton_Click" />
+			<AppBarButton
+				Icon="Remove"
+				Label="Except And Next"
+				x:Name="ExceptButton"
+			>
+				<AppBarButton.CommandParameter>
+					<local:ClassificateCommand>Remove</local:ClassificateCommand>
+				</AppBarButton.CommandParameter>
+			</AppBarButton>
+			<AppBarButton
+				Icon="Add"
+				Label="Save And Next"
+				x:Name="SaveButton"
+			>
+				<AppBarButton.CommandParameter>
+					<local:ClassificateCommand>Add</local:ClassificateCommand>
+				</AppBarButton.CommandParameter>
+			</AppBarButton>
 		</CommandBar>
+		<Expander
+			Grid.Row="1"
+			Header="To Classificate Image List"
+			HorizontalAlignment="Stretch"
+			HorizontalContentAlignment="Stretch"
+			VerticalAlignment="Bottom"
+			ExpandDirection="Down"
+			SizeChanged="ClassificateWindowExpander_SizeChanged"
+		>
+			<Expander.Content>
+				<RefreshContainer
+					x:Name="ClassificateRefreshContainer"
+					RefreshRequested="ClassificateRefreshContainer_RefreshRequested"
+				>
+					<ListView
+					MaxHeight="350"
+					SelectionMode="Single"
+					ItemsSource="{x:Bind FileList, Mode=TwoWay}"
+					IsTapEnabled="False"
+					SelectionChanged="ClassificateWindowListView_SelectionChanged"
+					x:Name="ClassificateListView"
+				>
+						<ListView.ItemTemplate>
+							<DataTemplate x:DataType="local:ClassificateListItemData">
+								<Grid>
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*" />
+										<ColumnDefinition Width="Auto" />
+									</Grid.ColumnDefinitions>
+									<TextBlock Text="{x:Bind FileName}" />
+									<FontIcon Grid.Column="1" Glyph="{x:Bind Symbol}" />
+								</Grid>
+							</DataTemplate>
+						</ListView.ItemTemplate>
+					</ListView>
+				</RefreshContainer>
+			</Expander.Content>
+		</Expander>
 	</Grid>
 </Window>

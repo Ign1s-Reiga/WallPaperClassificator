@@ -23,24 +23,17 @@
 			<RowDefinition Height="*" />
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
-		<Grid
-			Grid.Row="0"
-			Grid.Column="0"
-			ColumnSpacing="24"
-		>
+		<Grid ColumnSpacing="24">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="*" />
 				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
 			<TextBox
-				Grid.Row="0"
-				Grid.Column="0"
 				Header="Path to Unclassified Image Directory"
 				PlaceholderText="path/to/"
 				x:Name="UnclassifiedImageDirPath"
 			/>
 			<Button
-				Grid.Row="0"
 				Grid.Column="1"
 				Content="Select"
 				VerticalAlignment="Bottom"
@@ -50,7 +43,6 @@
 		</Grid>
 		<Grid
 			Grid.Row="1"
-			Grid.Column="0"
 			ColumnSpacing="24"
 		>
 			<Grid.ColumnDefinitions>
@@ -58,15 +50,12 @@
 				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
 			<TextBox
-				Grid.Row="0"
-				Grid.Column="0"
 				Header="Path to Save Directory"
 				PlaceholderText="path/to/"
 				ToolTipService.ToolTip="If this field is empty, a save directory is created on the same level as the unclassified image directory."
 				x:Name="SaveImageDirPath"
 			/>
 			<Button
-				Grid.Row="0"
 				Grid.Column="1"
 				Content="Select"
 				VerticalAlignment="Bottom"
@@ -76,7 +65,6 @@
 		</Grid>
 		<Button
 			Grid.Row="2"
-			Grid.Column="0"
 			Content="Start Classificate"
 			Click="StartClassificate_Click"
 			HorizontalAlignment="Stretch"
@@ -84,7 +72,6 @@
 		<ListView
             x:Name="FileList"
 			Grid.Row="3"
-			Grid.Column="0"
             ItemsSource="{x:Bind Files}"
             SelectionMode="None"
             Background="{ThemeResource LayerFillColorAltBrush}"
@@ -106,7 +93,6 @@
 		</ListView>
 		<comp:PopupInfoBar
 			Grid.Row="4"
-			Grid.Column="0"
 			HorizontalAlignment="Stretch"
 			x:Name="PopupInfoBar"
 		/>
