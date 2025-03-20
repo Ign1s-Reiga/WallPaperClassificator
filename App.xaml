@@ -11,7 +11,18 @@
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <!-- Other merged dictionaries here -->
             </ResourceDictionary.MergedDictionaries>
-            <!-- Other app resources here -->
+			<DataTemplate x:Key="ClassificateListTemplate">
+				<Grid Height="30">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="40" />
+						<ColumnDefinition Width="*" />
+						<ColumnDefinition Width="Auto" />
+					</Grid.ColumnDefinitions>
+					<Image Stretch="UniformToFill" Height="20" Width="20" Source="{Binding Path=FullPath}" />
+					<TextBlock Grid.Column="1" Text="{Binding Path=FileName}" VerticalAlignment="Center" />
+					<FontIcon Grid.Column="2" Glyph="{Binding Path=Symbol}" />
+				</Grid>
+			</DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

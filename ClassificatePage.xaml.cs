@@ -16,12 +16,13 @@ using Windows.Storage.Pickers;
 using Windows.Storage;
 using WinRT.Interop;
 using System.Diagnostics;
+using System.Collections.ObjectModel;
 
 namespace WallPaperClassificator
 {
 	public sealed partial class ClassificatePage : Page
 	{
-		public List<string> Files = [];
+		private ObservableCollection<ClassificateListItemData> Files = [];
 
 		public ClassificatePage()
 		{
@@ -48,10 +49,7 @@ namespace WallPaperClassificator
 				ClassificateWindow clsfWindow = new ClassificateWindow(UnclassifiedImageDirPath.Text, classifiedImageList);
 				clsfWindow.Closed += delegate {
 					MainWindow.Instance.AppWindow.Show();
-					classifiedImageList.ForEach((item) =>
-					{
-						Debug.WriteLine($"Classified Image: {item.FileName}");
-					});
+					classifiedImageList.ForEach(Files.Add);
 				};
 				clsfWindow.Activate();
 				MainWindow.Instance.AppWindow.Hide();

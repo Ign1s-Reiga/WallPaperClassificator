@@ -72,24 +72,12 @@
 		<ListView
             x:Name="FileList"
 			Grid.Row="3"
-            ItemsSource="{x:Bind Files}"
+            ItemsSource="{x:Bind Files, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+			ItemTemplate="{StaticResource ClassificateListTemplate}"
             SelectionMode="None"
             Background="{ThemeResource LayerFillColorAltBrush}"
             HorizontalAlignment="Stretch"
-        >
-			<ListView.ItemTemplate>
-				<DataTemplate x:DataType="x:String">
-					<Grid>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition Width="Auto" />
-							<ColumnDefinition Width="*" />
-						</Grid.ColumnDefinitions>
-						<Image Stretch="None" Width="50" Height="50" Source="{x:Bind}" />
-						<TextBlock Grid.Column="1" Text="{x:Bind}" />
-					</Grid>
-				</DataTemplate>
-			</ListView.ItemTemplate>
-		</ListView>
+        />
 		<comp:PopupInfoBar
 			Grid.Row="4"
 			HorizontalAlignment="Stretch"

@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -16,6 +17,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using WallPaperClassificator.Util;
+using Windows.ApplicationModel.Chat;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics;
@@ -31,9 +33,8 @@ namespace WallPaperClassificator
 		[DllImport("user32.dll")]
 		private static extern bool GetCursorPos(out PointInt32 lpPoint);
 
-		public List<ClassificateListItemData> FileList = [];
+		private ObservableCollection<ClassificateListItemData> FileList = [];
 
-		private readonly string unclassifiedImageDirPath;
 		private readonly string defaultWallPaperPath;
 		private readonly List<ClassificateListItemData> classifiedImageList;
 		private readonly List<string> acceptableImgExtList = [".jpg", ".jpeg", ".bmp", ".png", ".jfif", ".gif", ".tif", ".tiff"];
@@ -46,7 +47,6 @@ namespace WallPaperClassificator
 
 		public ClassificateWindow(string unclassifiedImageDirPath, List<ClassificateListItemData> classifiedImageList)
 		{
-			this.unclassifiedImageDirPath = unclassifiedImageDirPath;
 			this.defaultWallPaperPath = WallPaperHelper.GetWallPaper();
 			this.classifiedImageList = classifiedImageList;
 
@@ -66,10 +66,10 @@ namespace WallPaperClassificator
 				.ToList()
 				.ForEach(file => FileList.Add(new ClassificateListItemData {
 					FileName = file.Name,
+					FullPath = file.FullName,
 					State = ClassificateState.None,
 					Symbol = "\uF141" // hyphen symbol
 				}));
-			FileList.TrimExcess();
 
 			StandardUICommand forwardCommand = new StandardUICommand(StandardUICommandKind.Forward);
 			forwardCommand.ExecuteRequested += ForwardCommand_ExecuteRequested;
@@ -89,7 +89,7 @@ namespace WallPaperClassificator
 			ClassificateListItemData wallPaperItem = (ClassificateListItemData)args.AddedItems[0];
 			SetControlState(false);
 			CommandBarPathText.Text = wallPaperItem.FileName;
-			await Task.Run(() => WallPaperHelper.SetWallPaper(Path.Combine(this.unclassifiedImageDirPath, wallPaperItem.FileName)));
+			await Task.Run(() => WallPaperHelper.SetWallPaper(wallPaperItem.FullPath));
 			SetControlState(true);
 		}
 
@@ -119,16 +119,18 @@ namespace WallPaperClassificator
 				case ClassificateCommand.Add:
 					newItem = new ClassificateListItemData {
 						FileName = oldItem.FileName,
+						FullPath = oldItem.FullPath,
 						State = ClassificateState.Save,
-						Symbol = "\uF13E"
-					}; // Check symbol
+						Symbol = "\uF13E" // Save symbol
+					};
 					break;
 				case ClassificateCommand.Remove:
 					newItem = new ClassificateListItemData {
 						FileName = oldItem.FileName,
+						FullPath = oldItem.FullPath,
 						State = ClassificateState.Except,
-						Symbol = "\uF13D"
-					}; // Check symbol
+						Symbol = "\uF13D" // Remove symbol
+					};
 					break;
 			}
 			isClassificationFinished = ClassificateListView.SelectedIndex == FileList.Count - 1;
@@ -136,7 +138,7 @@ namespace WallPaperClassificator
 			{
 				CloseClassificateWindowConfirmation.Text = $"Classificate Progress will be reflected to App Main Window.{Environment.NewLine}Do you want to close the window?";
 			}
-			ReplaceToNewListViewItem(ClassificateListView.SelectedIndex, newItem);
+			FileList[ClassificateListView.SelectedIndex] = newItem;
 
 			SetControlState(true);
 			
@@ -155,14 +157,6 @@ namespace WallPaperClassificator
 			ClassificateListView.SelectedIndex = this.selectedIndexCache < (FileList.Count - 1)
 				? this.selectedIndexCache + 1
 				: this.selectedIndexCache;
-		}
-
-		private void ReplaceToNewListViewItem(int index, ClassificateListItemData newItem)
-		{
-			// ItemsSource won't be updated if new enumerables is similar to the old one.
-			List<ClassificateListItemData> updatedFileList = new List<ClassificateListItemData>(FileList);
-			updatedFileList[index] = newItem;
-			ClassificateListView.ItemsSource = updatedFileList;
 		}
 
 		private void SetControlState(bool newControlState)
@@ -244,6 +238,7 @@ namespace WallPaperClassificator
 	public class ClassificateListItemData
 	{
 		public required string FileName { get; set; }
+		public required string FullPath { get; set; }
 		public required ClassificateState State { get; set; }
 		public required string Symbol { get; set; }
 	}

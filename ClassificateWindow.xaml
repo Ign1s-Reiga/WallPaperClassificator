@@ -104,24 +104,12 @@
 					<ListView
 						MaxHeight="350"
 						SelectionMode="Single"
-						ItemsSource="{x:Bind FileList, Mode=TwoWay}"
+						ItemsSource="{x:Bind FileList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+						ItemTemplate="{StaticResource ClassificateListTemplate}"
 						IsTapEnabled="False"
 						SelectionChanged="ClassificateWindowListView_SelectionChanged"
 						x:Name="ClassificateListView"
-					>
-						<ListView.ItemTemplate>
-							<DataTemplate x:DataType="local:ClassificateListItemData">
-								<Grid>
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="*" />
-										<ColumnDefinition Width="Auto" />
-									</Grid.ColumnDefinitions>
-									<TextBlock Text="{x:Bind FileName}" />
-									<FontIcon Grid.Column="1" Glyph="{x:Bind Symbol}" />
-								</Grid>
-							</DataTemplate>
-						</ListView.ItemTemplate>
-					</ListView>
+					/>
 				</RefreshContainer>
 			</Expander.Content>
 		</Expander>
