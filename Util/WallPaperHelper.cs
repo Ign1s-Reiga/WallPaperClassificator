@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace WallPaperClassificator.Util
 {
@@ -36,7 +32,7 @@ namespace WallPaperClassificator.Util
 
 			StringBuilder sb = new StringBuilder(512);
 			bool success = SystemParametersInfo(SPI_GETDESKWALLPAPER, (uint)sb.Capacity, sb, 0);
-			return success ? sb.ToString() : (string)App.Settings["fallbackWallPaperPath"];
+			return success ? sb.ToString() : App.Settings.FallbackWallPaperPath;
 		}
 	}
 }

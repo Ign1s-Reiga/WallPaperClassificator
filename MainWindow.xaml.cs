@@ -1,19 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
-using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using System;
+using System.Linq;
 
 namespace WallPaperClassificator
 {
@@ -59,8 +49,8 @@ namespace WallPaperClassificator
 
 		private void MainNavView_Navigate(NavigationView navView, NavigationViewItem item, NavigationTransitionInfo info)
 		{
-			string pageName = ("WallPaperClassificator." + (string)item.Tag);
-			Type? pageType = Type.GetType(pageName);
+			string pageName = "WallPaperClassificator." + (string)item.Tag;
+			Type? pageType = Type.GetType(pageName, throwOnError: true);
 			if (pageType != null && ContentFrame.CurrentSourcePageType != pageType)
 			{
 				navView.Header = item.Content;

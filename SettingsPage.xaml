@@ -16,28 +16,27 @@
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
-			<Grid Grid.Row="0" Grid.Column="0" x:Name="GeneralSettings">
+			<Grid x:Name="GeneralSettings">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
-				<TextBlock Grid.Row="0" Grid.Column="0" Text="General" FontSize="20" FontWeight="Bold" />
-				<ComboBox Grid.Row="1" Grid.Column="0" Header="App Theme" x:Name="AppThemeSettings" Margin="0,16,0,0">
+				<TextBlock Text="General" FontSize="20" FontWeight="Bold" />
+				<ComboBox Grid.Row="1" Header="App Theme" x:Name="AppThemeSettings" Margin="0,16,0,0">
 					<x:String>Light</x:String>
 					<x:String>Dark</x:String>
 				</ComboBox>
 			</Grid>
-			<Grid Grid.Row="1" Grid.Column="1">
+			<Grid Grid.Row="1">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
-				<TextBlock Grid.Row="0" Grid.Column="0" Text="Classificate" FontSize="20" FontWeight="Bold" />
-				<TextBox Grid.Row="1" Grid.Column="0" Header="Fallback Wallpaper Path" Tag="FallbackWallPaperPathSettings" Margin="0,16,0,0" />
+				<TextBlock Text="Classificate" FontSize="20" FontWeight="Bold" />
+				<TextBox Grid.Row="1" Header="Fallback Wallpaper Path" Tag="FallbackWallPaperPathSettings" Margin="0,16,0,0" />
 			</Grid>
 			<Button
 				Grid.Row="2"
-				Grid.Column="0"
 				Style="{StaticResource AccentButtonStyle}"
 				HorizontalAlignment="Right"
 				Click="SaveButton_Click"

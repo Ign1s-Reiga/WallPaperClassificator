@@ -1,22 +1,14 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.Storage.Pickers;
+using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using WinRT.Interop;
-using System.Diagnostics;
-using System.Collections.ObjectModel;
 
 namespace WallPaperClassificator
 {
@@ -79,6 +71,38 @@ namespace WallPaperClassificator
 					SaveImageDirPath.Text = folder.Path;
 				else
 					return;
+			}
+		}
+
+		private async Task<bool> IsImageFileAsync(string path)
+		{
+			try
+			{
+				StorageFile file = await StorageFile.GetFileFromPathAsync(path);
+				string contentType = file.ContentType;
+				string[] acceptableImgMimeType = ["image/jpeg", "image/png", "image/gif", "image/bmp", "image/tiff"];
+
+				return acceptableImgMimeType.Contains(contentType);
+			}
+			catch
+			{
+				return false;
+			}
+		}
+
+		private bool CreateSaveImageDir(string path)
+		{
+			try
+			{
+				if (Directory.Exists(path))
+					return false;
+
+				Directory.CreateDirectory(path);
+				return true;
+			}
+			catch
+			{
+				return false;
 			}
 		}
 	}
