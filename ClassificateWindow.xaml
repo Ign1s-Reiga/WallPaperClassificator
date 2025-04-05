@@ -32,6 +32,7 @@
 				<TextBlock
 					FontSize="15"
 					Text="None is selected."
+					MaxWidth="240"
 					HorizontalAlignment="Stretch"
 					VerticalAlignment="Center"
 					TextTrimming="CharacterEllipsis"
@@ -97,20 +98,15 @@
 			SizeChanged="ClassificateWindowExpander_SizeChanged"
 		>
 			<Expander.Content>
-				<RefreshContainer
-					x:Name="ClassificateRefreshContainer"
-					RefreshRequested="ClassificateRefreshContainer_RefreshRequested"
-				>
-					<ListView
-						MaxHeight="350"
-						SelectionMode="Single"
-						ItemsSource="{x:Bind FileList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-						ItemTemplate="{StaticResource ClassificateListTemplate}"
-						IsTapEnabled="False"
-						SelectionChanged="ClassificateWindowListView_SelectionChanged"
-						x:Name="ClassificateListView"
-					/>
-				</RefreshContainer>
+				<ListView
+					MaxHeight="350"
+					SelectionMode="Single"
+					ItemsSource="{x:Bind FileList, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+					ItemTemplate="{StaticResource ClassificateListTemplate}"
+					IsTapEnabled="False"
+					SelectionChanged="ClassificateWindowListView_SelectionChanged"
+					x:Name="ClassificateListView"
+				/>
 			</Expander.Content>
 		</Expander>
 	</Grid>

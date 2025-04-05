@@ -96,55 +96,36 @@ namespace WallPaperClassificator
 			ClassificateWindow_Resize(800, desiredHeight);
 		}
 
-		private void ClassificateRefreshContainer_RefreshRequested(RefreshContainer sender, RefreshRequestedEventArgs args)
-		{
-			Deferral refreshCompletionDeferral = args.GetDeferral();
-
-			// Disable buttons while refreshing
-			SetControlState(false);
-			this.selectedIndexCache = ClassificateListView.SelectedIndex;
-			ClassificateListItemData oldItem = FileList.ElementAt(ClassificateListView.SelectedIndex);
-			ClassificateListItemData newItem = default!;
-
-			switch (this.nextClassificateCommand)
-			{
-				case ClassificateCommand.Add:
-					newItem = new ClassificateListItemData {
-						FileName = oldItem.FileName,
-						FullPath = oldItem.FullPath,
-						State = ClassificateState.Save,
-						Symbol = "\uF13E" // Save symbol
-					};
-					break;
-				case ClassificateCommand.Remove:
-					newItem = new ClassificateListItemData {
-						FileName = oldItem.FileName,
-						FullPath = oldItem.FullPath,
-						State = ClassificateState.Except,
-						Symbol = "\uF13D" // Remove symbol
-					};
-					break;
-			}
-			isClassificationFinished = ClassificateListView.SelectedIndex == FileList.Count - 1;
-			if (isClassificationFinished)
-			{
-				CloseClassificateWindowConfirmation.Text = $"Classificate Progress will be reflected to App Main Window.{Environment.NewLine}Do you want to close the window?";
-			}
-			FileList[ClassificateListView.SelectedIndex] = newItem;
-
-			SetControlState(true);
-			
-			refreshCompletionDeferral.Complete();
-			refreshCompletionDeferral.Dispose();
-		}
-
 		private void ForwardCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
 		{
 			ClassificateCommand command = (ClassificateCommand)args.Parameter;
 			if (ClassificateListView.SelectedIndex != -1)
 			{
-				this.nextClassificateCommand = command;
-				ClassificateRefreshContainer.RequestRefresh();
+				this.selectedIndexCache = ClassificateListView.SelectedIndex;
+				ClassificateListItemData oldItem = FileList.ElementAt(ClassificateListView.SelectedIndex);
+				ClassificateListItemData newItem = command switch
+				{
+					ClassificateCommand.Add => new ClassificateListItemData
+					{
+						FileName = oldItem.FileName,
+						FullPath = oldItem.FullPath,
+						State = ClassificateState.Save,
+						Symbol = "\uF13E" // Save symbol
+					},
+					ClassificateCommand.Remove => new ClassificateListItemData
+					{
+						FileName = oldItem.FileName,
+						FullPath = oldItem.FullPath,
+						State = ClassificateState.Except,
+						Symbol = "\uF13D" // Remove symbol
+					},
+				};
+				isClassificationFinished = ClassificateListView.SelectedIndex == FileList.Count - 1;
+				if (isClassificationFinished)
+				{
+					CloseClassificateWindowConfirmation.Text = $"Classificate Progress will be reflected to App Main Window.{Environment.NewLine}Do you want to close the window?";
+				}
+				FileList[ClassificateListView.SelectedIndex] = newItem;
 			}
 			ClassificateListView.SelectedIndex = this.selectedIndexCache < (FileList.Count - 1)
 				? this.selectedIndexCache + 1

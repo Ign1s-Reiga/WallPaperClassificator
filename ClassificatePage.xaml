@@ -78,8 +78,16 @@
             Background="{ThemeResource LayerFillColorAltBrush}"
             HorizontalAlignment="Stretch"
         />
-		<comp:PopupInfoBar
+		<Button
 			Grid.Row="4"
+			Content="Save Images To Directory"
+			Click="SaveImages_Click"
+			IsEnabled="False"
+			HorizontalAlignment="Stretch"
+			x:Name="SaveImagesButton"
+		/>
+		<comp:PopupInfoBar
+			Grid.Row="5"
 			HorizontalAlignment="Stretch"
 			x:Name="PopupInfoBar"
 		/>

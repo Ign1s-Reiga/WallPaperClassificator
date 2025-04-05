@@ -16,6 +16,8 @@ namespace WallPaperClassificator
 	{
 		private ObservableCollection<ClassificateListItemData> Files = [];
 
+		private string saveImageDirPath = string.Empty;
+
 		public ClassificatePage()
 		{
 			this.InitializeComponent();
@@ -28,20 +30,21 @@ namespace WallPaperClassificator
 				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Please select the folder where the images are stored.");
 				return;
 			}
-			// This condition will delete when ClassificateWindow is completely implemented.
-			if (SaveImageDirPath.Text.Length == 0)
+
+			if (!CreateSaveImageDir())
 			{
-				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Please select the folder that will used to save the images.");
+				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "An error has occurred while creating save dir. please re-try");
 				return;
 			}
 
-			if (Directory.Exists(UnclassifiedImageDirPath.Text) && Directory.Exists(SaveImageDirPath.Text))
+			if (Directory.Exists(UnclassifiedImageDirPath.Text))
 			{
 				List<ClassificateListItemData> classifiedImageList = new List<ClassificateListItemData>();
 				ClassificateWindow clsfWindow = new ClassificateWindow(UnclassifiedImageDirPath.Text, classifiedImageList);
 				clsfWindow.Closed += delegate {
 					MainWindow.Instance.AppWindow.Show();
 					classifiedImageList.ForEach(Files.Add);
+					SaveImagesButton.IsEnabled = true;
 				};
 				clsfWindow.Activate();
 				MainWindow.Instance.AppWindow.Hide();
@@ -50,6 +53,36 @@ namespace WallPaperClassificator
 			{
 				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "The folder does not exist.");
 			}
+		}
+
+		private void SaveImages_Click(object sender, RoutedEventArgs e)
+		{
+
+			List<string> listToSave = Files.Where(file => file.State == ClassificateState.Save)
+				.Select(file => file.FullPath)
+				.ToList();
+
+			if (IsPathDuplicated(listToSave))
+			{
+				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Some file(s) are couldn't be copied, because there are file(s) that have same name.");
+				return;
+			}
+			listToSave.ForEach(file =>
+			{
+				string destPath = Path.Combine(this.saveImageDirPath, Path.GetFileName(file));
+				try
+				{
+					File.Copy(file, destPath);
+				}
+				catch
+				{
+					// TODO: Log error
+					return;
+				}
+			});
+			PopupInfoBar.AddInfoBar(InfoBarSeverity.Success, "The images have been classificated successfully.");
+			SaveImagesButton.IsEnabled = false;
+			Files.Clear();
 		}
 
 		private async void SelectFolder_Click(object sender, RoutedEventArgs args)
@@ -90,20 +123,36 @@ namespace WallPaperClassificator
 			}
 		}
 
-		private bool CreateSaveImageDir(string path)
+		private bool CreateSaveImageDir()
 		{
+			this.saveImageDirPath = SaveImageDirPath.Text != string.Empty
+				? SaveImageDirPath.Text
+				: Path.Combine(Directory.GetCurrentDirectory(), "Save");
+			if (File.Exists(this.saveImageDirPath))
+			{
+				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "The path is already allocated to a file. please delete it.");
+				return false;
+			}
+
 			try
 			{
-				if (Directory.Exists(path))
-					return false;
-
-				Directory.CreateDirectory(path);
+				if (Directory.Exists(this.saveImageDirPath))
+					return true;
+				Directory.CreateDirectory(this.saveImageDirPath);
 				return true;
 			}
 			catch
 			{
 				return false;
 			}
+		}
+
+		private bool IsPathDuplicated(List<string> files)
+		{
+			DirectoryInfo info = new DirectoryInfo(this.saveImageDirPath);
+			return info.EnumerateFiles()
+				.Where(file => files.Contains(Path.GetFileName(file.Name)))
+				.Any();
 		}
 	}
 }
