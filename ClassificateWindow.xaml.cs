@@ -35,7 +35,6 @@ namespace WallPaperClassificator
 		private bool pointerMoving = false;
 		private int selectedIndexCache = -1; // This value will contains the index of the item that was selected before the refresh request.
 		private bool isClassificationFinished = false;
-		private ClassificateCommand nextClassificateCommand = ClassificateCommand.Add;
 
 		public ClassificateWindow(string unclassifiedImageDirPath, List<ClassificateListItemData> classifiedImageList)
 		{
@@ -54,7 +53,7 @@ namespace WallPaperClassificator
 
 			DirectoryInfo unclassifiedDir = new DirectoryInfo(unclassifiedImageDirPath);
 			unclassifiedDir.EnumerateFiles()
-				.Where(file => acceptableImgExtList.Contains(file.Extension.ToLower())) // TODO: Check if the file is image.
+				.Where(file => acceptableImgExtList.Contains(file.Extension.ToLower()))
 				.ToList()
 				.ForEach(file => FileList.Add(new ClassificateListItemData {
 					FileName = file.Name,

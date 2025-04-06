@@ -1,14 +1,20 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using WallPaperClassificator.Util;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
+using Image = SixLabors.ImageSharp.Image;
 
 namespace WallPaperClassificator
 {
@@ -17,13 +23,14 @@ namespace WallPaperClassificator
 		private ObservableCollection<ClassificateListItemData> Files = [];
 
 		private string saveImageDirPath = string.Empty;
+		private string tmpDirPath = string.Empty;
 
 		public ClassificatePage()
 		{
 			this.InitializeComponent();
 		}
 
-		private void StartClassificate_Click(object sender, RoutedEventArgs args)
+		private async void StartClassificate_Click(object sender, RoutedEventArgs args)
 		{
 			if (UnclassifiedImageDirPath.Text.Length == 0)
 			{
@@ -31,16 +38,29 @@ namespace WallPaperClassificator
 				return;
 			}
 
-			if (!CreateSaveImageDir())
-			{
-				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "An error has occurred while creating save dir. please re-try");
-				return;
-			}
-
 			if (Directory.Exists(UnclassifiedImageDirPath.Text))
 			{
+
+				this.saveImageDirPath = SaveImageDirPath.Text != string.Empty
+					? SaveImageDirPath.Text
+					: Path.Combine(Directory.GetCurrentDirectory(), "save");
+				this.tmpDirPath = Path.Combine(UnclassifiedImageDirPath.Text, "tmp");
+				ResultData<string> saveDirResult = CreateDirectory(this.saveImageDirPath, false);
+				if (saveDirResult.status == ResultStatus.Error)
+				{
+					PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, saveDirResult.value);
+					return;
+				}
+				ResultData<string> tmpDirResult = CreateDirectory(this.tmpDirPath);
+				if (tmpDirResult.status == ResultStatus.Error)
+				{
+					PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, tmpDirResult.value);
+					return;
+				}
+				await CopyToTmpDir();
+
 				List<ClassificateListItemData> classifiedImageList = new List<ClassificateListItemData>();
-				ClassificateWindow clsfWindow = new ClassificateWindow(UnclassifiedImageDirPath.Text, classifiedImageList);
+				ClassificateWindow clsfWindow = new ClassificateWindow(this.tmpDirPath, classifiedImageList);
 				clsfWindow.Closed += delegate {
 					MainWindow.Instance.AppWindow.Show();
 					classifiedImageList.ForEach(Files.Add);
@@ -80,9 +100,11 @@ namespace WallPaperClassificator
 					return;
 				}
 			});
-			PopupInfoBar.AddInfoBar(InfoBarSeverity.Success, "The images have been classificated successfully.");
+			Directory.Delete(this.tmpDirPath, true);
 			SaveImagesButton.IsEnabled = false;
 			Files.Clear();
+
+			PopupInfoBar.AddInfoBar(InfoBarSeverity.Success, "The images have been classificated successfully.");
 		}
 
 		private async void SelectFolder_Click(object sender, RoutedEventArgs args)
@@ -107,44 +129,93 @@ namespace WallPaperClassificator
 			}
 		}
 
-		private async Task<bool> IsImageFileAsync(string path)
+		private ResultData<string> CreateDirectory(string path, bool checkFileContains = true)
 		{
-			try
+			if (File.Exists(path))
 			{
-				StorageFile file = await StorageFile.GetFileFromPathAsync(path);
-				string contentType = file.ContentType;
-				string[] acceptableImgMimeType = ["image/jpeg", "image/png", "image/gif", "image/bmp", "image/tiff"];
-
-				return acceptableImgMimeType.Contains(contentType);
+				return Result.Error<string>("The path is already allocated to a file. please delete it.");
 			}
-			catch
+
+			if (Directory.Exists(path))
 			{
-				return false;
+				if (Directory.GetFiles(path).Length > 0 && checkFileContains)
+				{
+					return Result.Error<string>("The directory includes some file(s), please delete them.");
+				}
+				else
+				{
+					return Result.Ok<string>(path);
+				}
+			}
+			else
+			{
+				try
+				{
+					Directory.CreateDirectory(path);
+					return Result.Ok<string>(path);
+				}
+				catch (Exception e)
+				{
+					return Result.Error<string>(e.Message);
+				}
 			}
 		}
 
-		private bool CreateSaveImageDir()
+		private async Task CopyToTmpDir()
 		{
-			this.saveImageDirPath = SaveImageDirPath.Text != string.Empty
-				? SaveImageDirPath.Text
-				: Path.Combine(Directory.GetCurrentDirectory(), "Save");
-			if (File.Exists(this.saveImageDirPath))
+			DirectoryInfo unclsfDirInfo = new DirectoryInfo(UnclassifiedImageDirPath.Text);
+			string[] acceptableMIMETypes = ["image/jpeg", "image/png", "image/gif", "image/bmp", "image/tiff", "image/webp"];
+			ConcurrentBag<FileInfo> images = new ConcurrentBag<FileInfo>();
+			await Task.Run(() => FilterByIsImage(unclsfDirInfo.EnumerateFiles(), images, acceptableMIMETypes));
+			images.ToList().ForEach(image => Debug.WriteLine($"ImageList: {image.Name}"));
+			await Task.Run(() =>
 			{
-				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "The path is already allocated to a file. please delete it.");
-				return false;
-			}
+				Parallel.ForEach(images, info =>
+				{
+					File.Copy(info.FullName, Path.Combine(this.tmpDirPath, info.Name), true);
+				});
+			});
 
-			try
+			images.Clear();
+			
+			Debug.WriteLine(null);
+
+			// Save webp images as png files (to be configurable)
+			DirectoryInfo tmpDirInfo = new DirectoryInfo(this.tmpDirPath);
+			await Task.Run(() => FilterByIsImage(tmpDirInfo.EnumerateFiles(), images, ["image/webp"]));
+			images.ToList().ForEach(image => Debug.WriteLine($"ImageList: {image.Name}"));
+			await Task.Run(() =>
 			{
-				if (Directory.Exists(this.saveImageDirPath))
-					return true;
-				Directory.CreateDirectory(this.saveImageDirPath);
-				return true;
-			}
-			catch
+				Parallel.ForEach(images, info =>
+				{
+					using Image image = Image.Load(info.FullName);
+					image.SaveAsPng(Path.Combine(this.tmpDirPath, Path.ChangeExtension(info.Name, ".png")));
+					Debug.WriteLine($"Convert webp file to png: {info.Name}");
+					info.Delete();
+				});
+			});
+		}
+
+		private void FilterByIsImage(IEnumerable<FileInfo> fileList, ConcurrentBag<FileInfo> imageList, string[] MIMETypes)
+		{
+			Parallel.ForEach(fileList, info =>
 			{
-				return false;
-			}
+				bool isImage = false;
+				try
+				{
+					IImageFormat format = Image.DetectFormat(info.FullName);
+					isImage = MIMETypes.Contains(format.DefaultMimeType);
+				}
+				catch (Exception e)
+				{
+					Debug.WriteLine(e.Message);
+				}
+
+				if (isImage)
+				{
+					imageList.Add(info);
+				}
+			});
 		}
 
 		private bool IsPathDuplicated(List<string> files)
