@@ -1,5 +1,7 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using System;
+using System.Diagnostics;
 using WallPaperClassificator.Util;
 
 namespace WallPaperClassificator
@@ -12,13 +14,16 @@ namespace WallPaperClassificator
 		}
 		private void SaveButton_Click(object sender, RoutedEventArgs e)
 		{
-			ApplicationTheme theme = SettingsHelper.GetApplicationThemeFromInt(AppThemeSettings.SelectedIndex);
-			App.Settings.AppTheme = AppThemeSettings.SelectedIndex;
+			App.Settings.AppTheme = AppTheme.SelectedIndex;
+			App.Settings.FallbackWallPaperPath = FallbackWallPaperPath.Text;
+			App.Settings.NumThreadsConvImages = NumThreadsConvImages.Value;
 		}
 
 		private void SettingsPage_Loading(FrameworkElement sender, object args)
 		{
-			AppThemeSettings.SelectedIndex = App.Settings.AppTheme;
+			AppTheme.SelectedIndex = App.Settings.AppTheme;
+			FallbackWallPaperPath.Text = App.Settings.FallbackWallPaperPath;
+			NumThreadsConvImages.Value = App.Settings.NumThreadsConvImages;
 		}
 	}
 }

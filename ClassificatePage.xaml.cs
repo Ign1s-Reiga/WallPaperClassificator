@@ -167,26 +167,23 @@ namespace WallPaperClassificator
 			string[] acceptableMIMETypes = ["image/jpeg", "image/png", "image/gif", "image/bmp", "image/tiff", "image/webp"];
 			ConcurrentBag<FileInfo> images = new ConcurrentBag<FileInfo>();
 			await Task.Run(() => FilterByIsImage(unclsfDirInfo.EnumerateFiles(), images, acceptableMIMETypes));
-			images.ToList().ForEach(image => Debug.WriteLine($"ImageList: {image.Name}"));
 			await Task.Run(() =>
 			{
-				Parallel.ForEach(images, info =>
+				Parallel.ForEach(images, new ParallelOptions { MaxDegreeOfParallelism = 6 }, info =>
 				{
 					File.Copy(info.FullName, Path.Combine(this.tmpDirPath, info.Name), true);
 				});
 			});
 
 			images.Clear();
-			
-			Debug.WriteLine(null);
+			int maxParallelism = (int)App.Settings.NumThreadsConvImages;
 
 			// Save webp images as png files (to be configurable)
 			DirectoryInfo tmpDirInfo = new DirectoryInfo(this.tmpDirPath);
 			await Task.Run(() => FilterByIsImage(tmpDirInfo.EnumerateFiles(), images, ["image/webp"]));
-			images.ToList().ForEach(image => Debug.WriteLine($"ImageList: {image.Name}"));
 			await Task.Run(() =>
 			{
-				Parallel.ForEach(images, info =>
+				Parallel.ForEach(images, new ParallelOptions { MaxDegreeOfParallelism = maxParallelism }, info =>
 				{
 					using Image image = Image.Load(info.FullName);
 					image.SaveAsPng(Path.Combine(this.tmpDirPath, Path.ChangeExtension(info.Name, ".png")));

@@ -16,31 +16,45 @@
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 			</Grid.RowDefinitions>
-			<Grid x:Name="GeneralSettings">
+			<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
 				<TextBlock Text="General" FontSize="20" FontWeight="Bold" />
-				<ComboBox Grid.Row="1" Header="App Theme" x:Name="AppThemeSettings" Margin="0,16,0,0">
+				<ComboBox Grid.Row="1" Header="App Theme" x:Name="AppTheme" Margin="0,16,0,0">
 					<x:String>Light</x:String>
 					<x:String>Dark</x:String>
 				</ComboBox>
 			</Grid>
-			<Grid Grid.Row="1">
+			<Grid Grid.Row="1" RowSpacing="16">
 				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 				</Grid.RowDefinitions>
 				<TextBlock Text="Classificate" FontSize="20" FontWeight="Bold" />
-				<TextBox Grid.Row="1" Header="Fallback Wallpaper Path" Tag="FallbackWallPaperPathSettings" Margin="0,16,0,0" />
+				<TextBox
+					Grid.Row="1"
+					Header="Fallback Wallpaper Path"
+					x:Name="FallbackWallPaperPath"
+				/>
+				<Slider
+					Grid.Row="2"
+					Header="Number of threads in converting images"
+					HorizontalAlignment="Stretch"
+					Minimum="1"
+					Maximum="10"
+					TickFrequency="1"
+					TickPlacement="Outside"
+					x:Name="NumThreadsConvImages"
+				/>
 			</Grid>
 			<Button
 				Grid.Row="2"
 				Style="{StaticResource AccentButtonStyle}"
-				HorizontalAlignment="Right"
+				HorizontalAlignment="Stretch"
 				Click="SaveButton_Click"
-				Width="200"
 			>
 				<StackPanel Orientation="Horizontal">
 					<SymbolIcon Symbol="Save" Margin="0,0,8,0" />

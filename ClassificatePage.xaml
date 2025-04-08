@@ -52,7 +52,7 @@
 			<TextBox
 				Header="Path to Save Directory"
 				PlaceholderText="path/to/"
-				ToolTipService.ToolTip="If this field is empty, a save directory is created on the same level as the unclassified image directory."
+				ToolTipService.ToolTip="If this field is empty, App will create a save directory on the same level of itself."
 				x:Name="SaveImageDirPath"
 			/>
 			<Button

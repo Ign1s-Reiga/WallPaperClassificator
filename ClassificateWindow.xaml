@@ -39,7 +39,7 @@
 					x:Name="CommandBarPathText"
 				/>
 			</CommandBar.Content>
-			<AppBarButton Icon="Cancel" Label="Cancel">
+			<AppBarButton Icon="Cancel" Label="Close">
 				<AppBarButton.Flyout>
 					<Flyout>
 						<StackPanel>
@@ -54,7 +54,7 @@
 								Content="Yes"
 								Width="100"
 								HorizontalAlignment="Right"
-								Click="CancelButton_Click"
+								Click="CloseButton_Click"
 							/>
 						</StackPanel>
 					</Flyout>

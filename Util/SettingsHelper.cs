@@ -15,6 +15,7 @@ namespace WallPaperClassificator.Util
 			ISettings settings =  new ConfigurationBuilder<ISettings>()
 				.UseJsonFile(settingsFileName)
 				.Build();
+
 			if (settings.Version < settingsVersion) // Upgrade phase
 			{
 				settings.Version = settingsVersion;
@@ -43,5 +44,8 @@ namespace WallPaperClassificator.Util
 
 		[DefaultValue(@"C:\Windows\Web\Wallpaper\Windows\img0.jpg")]
 		public string FallbackWallPaperPath { get; set; }
+
+		[DefaultValue(4.0)]
+		public double NumThreadsConvImages { get; set; }
 	}
 }

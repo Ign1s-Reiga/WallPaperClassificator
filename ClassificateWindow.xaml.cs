@@ -86,12 +86,13 @@ namespace WallPaperClassificator
 
 		private void ClassificateWindowExpander_SizeChanged(object sender, SizeChangedEventArgs args)
 		{
+			const int WINDOW_HEIGHT = 102;
 			const int EXPANDER_COLLAPSED_HEIGHT = 48;
 			Expander expander = (Expander)sender;
 
 			double desiredHeight = expander.ActualHeight != EXPANDER_COLLAPSED_HEIGHT
-				? 96 + expander.ActualHeight - EXPANDER_COLLAPSED_HEIGHT
-				: 96; // 96 is the command bar height
+				? WINDOW_HEIGHT + expander.ActualHeight - EXPANDER_COLLAPSED_HEIGHT
+				: WINDOW_HEIGHT;
 			ClassificateWindow_Resize(800, desiredHeight);
 		}
 
@@ -144,7 +145,7 @@ namespace WallPaperClassificator
 			ClassificateListView.SelectedIndex -= 1;
 		}
 
-		private async void CancelButton_Click(object sender, RoutedEventArgs e)
+		private async void CloseButton_Click(object sender, RoutedEventArgs e)
 		{
 			// TODO: Add condition If desktop background was background color
 			await Task.Run(() => WallPaperHelper.SetWallPaper(this.defaultWallPaperPath));
