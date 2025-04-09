@@ -177,28 +177,26 @@ namespace WallPaperClassificator
 			string[] acceptableMIMETypes = ["image/jpeg", "image/png", "image/gif", "image/bmp", "image/tiff", "image/webp"];
 			ConcurrentBag<FileInfo> images = new ConcurrentBag<FileInfo>();
 			FilterByIsImage(unclsfDirInfo.EnumerateFiles(), images, acceptableMIMETypes);
-			Parallel.ForEach(images, new ParallelOptions { MaxDegreeOfParallelism = 6 }, info =>
-			{
-				File.Copy(info.FullName, Path.Combine(this.tmpDirPath, info.Name), true);
-			});
 
-			images.Clear();
 			int maxParallelism = (int)App.Settings.NumThreadsConvImages;
-
-			// Save webp images as png files (to be configurable)
-			DirectoryInfo tmpDirInfo = new DirectoryInfo(this.tmpDirPath);
-			FilterByIsImage(tmpDirInfo.EnumerateFiles(), images, ["image/webp"]);
 			Parallel.ForEach(images, new ParallelOptions { MaxDegreeOfParallelism = maxParallelism }, info =>
 			{
-				using Image image = Image.Load(info.FullName);
-				string newFileName = Path.ChangeExtension(info.Name, ".png");
+				string destPath = Path.Combine(this.tmpDirPath, info.Name);
+				File.Copy(info.FullName, destPath, true);
+
+				using Image image = Image.Load(destPath);
+				if (Path.GetExtension(info.Name).ToLower() is ".webp")
+				{
+					string newPath = Path.ChangeExtension(destPath, ".png");
+					image.SaveAsPng(newPath);
+					File.Delete(destPath);
+					destPath = newPath;
+				}
 				descriptions.Add(new FileDescription(
-					newFileName,
-					Path.Combine(this.tmpDirPath, newFileName),
-					string.Format("{0}x{1}", image.Width, image.Height)
+					Path.GetFileName(destPath),
+					destPath,
+					$"{image.Width}x{image.Height}"
 				));
-				image.SaveAsPng(Path.Combine(this.tmpDirPath, newFileName));
-				info.Delete();
 			});
 		}
 
