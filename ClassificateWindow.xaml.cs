@@ -25,11 +25,10 @@ namespace WallPaperClassificator
 		[DllImport("user32.dll")]
 		private static extern bool GetCursorPos(out PointInt32 lpPoint);
 
-		private ObservableCollection<ClassificateListItemData> FileList = [];
+		private ObservableCollection<ClassificateListItemData> FileList;
 
 		private readonly string defaultWallPaperPath;
 		private readonly List<ClassificateListItemData> classifiedImageList;
-		private readonly List<string> acceptableImgExtList = [".jpg", ".jpeg", ".bmp", ".png", ".jfif", ".gif", ".tif", ".tiff"];
 
 		private int posWinX = 0, posWinY = 0, posPressedX = 0, posPressedY = 0;
 		private bool pointerMoving = false;
@@ -40,6 +39,7 @@ namespace WallPaperClassificator
 		{
 			this.defaultWallPaperPath = WallPaperHelper.GetWallPaper();
 			this.classifiedImageList = classifiedImageList;
+			FileList = new ObservableCollection<ClassificateListItemData>(this.classifiedImageList);
 
 			this.InitializeComponent();
 			this.ExtendsContentIntoTitleBar = true;
@@ -50,17 +50,6 @@ namespace WallPaperClassificator
 			presenter.IsMinimizable = false;
 			presenter.IsResizable = false;
 			presenter.SetBorderAndTitleBar(true, false);
-
-			DirectoryInfo unclassifiedDir = new DirectoryInfo(unclassifiedImageDirPath);
-			unclassifiedDir.EnumerateFiles()
-				.Where(file => acceptableImgExtList.Contains(file.Extension.ToLower()))
-				.ToList()
-				.ForEach(file => FileList.Add(new ClassificateListItemData {
-					FileName = file.Name,
-					FullPath = file.FullName,
-					State = ClassificateState.None,
-					Symbol = "\uF141" // hyphen symbol
-				}));
 
 			StandardUICommand forwardCommand = new StandardUICommand(StandardUICommandKind.Forward);
 			forwardCommand.ExecuteRequested += ForwardCommand_ExecuteRequested;
@@ -79,8 +68,8 @@ namespace WallPaperClassificator
 			// TODO: Blur the ListView while changing the background
 			ClassificateListItemData wallPaperItem = (ClassificateListItemData)args.AddedItems[0];
 			SetControlState(false);
-			CommandBarPathText.Text = wallPaperItem.FileName;
-			await Task.Run(() => WallPaperHelper.SetWallPaper(wallPaperItem.FullPath));
+			CommandBarPathText.Text = wallPaperItem.FileDescription.FileName;
+			await Task.Run(() => WallPaperHelper.SetWallPaper(wallPaperItem.FileDescription.FullPath));
 			SetControlState(true);
 		}
 
@@ -103,22 +92,11 @@ namespace WallPaperClassificator
 			{
 				this.selectedIndexCache = ClassificateListView.SelectedIndex;
 				ClassificateListItemData oldItem = FileList.ElementAt(ClassificateListView.SelectedIndex);
-				ClassificateListItemData newItem = command switch
+				ClassificateListItemData newItem = new ClassificateListItemData
 				{
-					ClassificateCommand.Add => new ClassificateListItemData
-					{
-						FileName = oldItem.FileName,
-						FullPath = oldItem.FullPath,
-						State = ClassificateState.Save,
-						Symbol = "\uF13E" // Save symbol
-					},
-					ClassificateCommand.Remove => new ClassificateListItemData
-					{
-						FileName = oldItem.FileName,
-						FullPath = oldItem.FullPath,
-						State = ClassificateState.Except,
-						Symbol = "\uF13D" // Remove symbol
-					},
+					FileDescription = oldItem.FileDescription,
+					State = command == ClassificateCommand.Add ? ClassificateState.Save : ClassificateState.Except,
+					Symbol = command == ClassificateCommand.Add ? "\uF13E" : "\uF13D"
 				};
 				isClassificationFinished = ClassificateListView.SelectedIndex == FileList.Count - 1;
 				if (isClassificationFinished)
@@ -210,11 +188,12 @@ namespace WallPaperClassificator
 
 	public class ClassificateListItemData
 	{
-		public required string FileName { get; set; }
-		public required string FullPath { get; set; }
+		public required FileDescription FileDescription { get; set; }
 		public required ClassificateState State { get; set; }
 		public required string Symbol { get; set; }
 	}
+
+	public record struct FileDescription(string FileName, string FullPath, string Size);
 
 	public enum ClassificateCommand
 	{

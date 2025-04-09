@@ -9,6 +9,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using WallPaperClassificator.Util;
 using Windows.Storage;
@@ -30,7 +31,7 @@ namespace WallPaperClassificator
 			this.InitializeComponent();
 		}
 
-		private async void StartClassificate_Click(object sender, RoutedEventArgs args)
+		private void StartClassificate_Click(object sender, RoutedEventArgs args)
 		{
 			if (UnclassifiedImageDirPath.Text.Length == 0)
 			{
@@ -46,24 +47,34 @@ namespace WallPaperClassificator
 					: Path.Combine(Directory.GetCurrentDirectory(), "save");
 				this.tmpDirPath = Path.Combine(UnclassifiedImageDirPath.Text, "tmp");
 				ResultData<string> saveDirResult = CreateDirectory(this.saveImageDirPath, false);
-				if (saveDirResult.status == ResultStatus.Error)
+				if (saveDirResult.Status == ResultStatus.Error)
 				{
-					PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, saveDirResult.value);
+					PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, saveDirResult.Value);
 					return;
 				}
 				ResultData<string> tmpDirResult = CreateDirectory(this.tmpDirPath);
-				if (tmpDirResult.status == ResultStatus.Error)
+				if (tmpDirResult.Status == ResultStatus.Error)
 				{
-					PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, tmpDirResult.value);
+					PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, tmpDirResult.Value);
 					return;
 				}
-				await CopyToTmpDir();
+				ConcurrentBag<FileDescription> descriptions = new ConcurrentBag<FileDescription>();
+				CopyToTmpDir(descriptions);
 
-				List<ClassificateListItemData> classifiedImageList = new List<ClassificateListItemData>();
-				ClassificateWindow clsfWindow = new ClassificateWindow(this.tmpDirPath, classifiedImageList);
+				List<ClassificateListItemData> imageList = descriptions
+					.OrderBy(descriptions => descriptions.FileName, new StringComparer())
+					.Select(file => new ClassificateListItemData
+					{
+						FileDescription = file,
+						State = ClassificateState.None,
+						Symbol = "\uF141" // hyphen symbol
+					})
+					.ToList();
+				imageList.ForEach(image => Debug.WriteLine($"{image.FileDescription.FileName}"));
+				ClassificateWindow clsfWindow = new ClassificateWindow(this.tmpDirPath, imageList);
 				clsfWindow.Closed += delegate {
 					MainWindow.Instance.AppWindow.Show();
-					classifiedImageList.ForEach(Files.Add);
+					imageList.ForEach(Files.Add);
 					SaveImagesButton.IsEnabled = true;
 				};
 				clsfWindow.Activate();
@@ -78,16 +89,15 @@ namespace WallPaperClassificator
 		private void SaveImages_Click(object sender, RoutedEventArgs e)
 		{
 
-			List<string> listToSave = Files.Where(file => file.State == ClassificateState.Save)
-				.Select(file => file.FullPath)
-				.ToList();
+			IEnumerable<string> listToSave = Files.Where(file => file.State == ClassificateState.Save)
+				.Select(file => file.FileDescription.FullPath);
 
 			if (IsPathDuplicated(listToSave))
 			{
 				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Some file(s) are couldn't be copied, because there are file(s) that have same name.");
 				return;
 			}
-			listToSave.ForEach(file =>
+			listToSave.ToList().ForEach(file =>
 			{
 				string destPath = Path.Combine(this.saveImageDirPath, Path.GetFileName(file));
 				try
@@ -161,18 +171,15 @@ namespace WallPaperClassificator
 			}
 		}
 
-		private async Task CopyToTmpDir()
+		private void CopyToTmpDir(ConcurrentBag<FileDescription> descriptions)
 		{
 			DirectoryInfo unclsfDirInfo = new DirectoryInfo(UnclassifiedImageDirPath.Text);
 			string[] acceptableMIMETypes = ["image/jpeg", "image/png", "image/gif", "image/bmp", "image/tiff", "image/webp"];
 			ConcurrentBag<FileInfo> images = new ConcurrentBag<FileInfo>();
-			await Task.Run(() => FilterByIsImage(unclsfDirInfo.EnumerateFiles(), images, acceptableMIMETypes));
-			await Task.Run(() =>
+			FilterByIsImage(unclsfDirInfo.EnumerateFiles(), images, acceptableMIMETypes);
+			Parallel.ForEach(images, new ParallelOptions { MaxDegreeOfParallelism = 6 }, info =>
 			{
-				Parallel.ForEach(images, new ParallelOptions { MaxDegreeOfParallelism = 6 }, info =>
-				{
-					File.Copy(info.FullName, Path.Combine(this.tmpDirPath, info.Name), true);
-				});
+				File.Copy(info.FullName, Path.Combine(this.tmpDirPath, info.Name), true);
 			});
 
 			images.Clear();
@@ -180,16 +187,18 @@ namespace WallPaperClassificator
 
 			// Save webp images as png files (to be configurable)
 			DirectoryInfo tmpDirInfo = new DirectoryInfo(this.tmpDirPath);
-			await Task.Run(() => FilterByIsImage(tmpDirInfo.EnumerateFiles(), images, ["image/webp"]));
-			await Task.Run(() =>
+			FilterByIsImage(tmpDirInfo.EnumerateFiles(), images, ["image/webp"]);
+			Parallel.ForEach(images, new ParallelOptions { MaxDegreeOfParallelism = maxParallelism }, info =>
 			{
-				Parallel.ForEach(images, new ParallelOptions { MaxDegreeOfParallelism = maxParallelism }, info =>
-				{
-					using Image image = Image.Load(info.FullName);
-					image.SaveAsPng(Path.Combine(this.tmpDirPath, Path.ChangeExtension(info.Name, ".png")));
-					Debug.WriteLine($"Convert webp file to png: {info.Name}");
-					info.Delete();
-				});
+				using Image image = Image.Load(info.FullName);
+				string newFileName = Path.ChangeExtension(info.Name, ".png");
+				descriptions.Add(new FileDescription(
+					newFileName,
+					Path.Combine(this.tmpDirPath, newFileName),
+					string.Format("{0}x{1}", image.Width, image.Height)
+				));
+				image.SaveAsPng(Path.Combine(this.tmpDirPath, newFileName));
+				info.Delete();
 			});
 		}
 
@@ -215,12 +224,20 @@ namespace WallPaperClassificator
 			});
 		}
 
-		private bool IsPathDuplicated(List<string> files)
+		private bool IsPathDuplicated(IEnumerable<string> files)
 		{
 			DirectoryInfo info = new DirectoryInfo(this.saveImageDirPath);
 			return info.EnumerateFiles()
 				.Where(file => files.Contains(Path.GetFileName(file.Name)))
 				.Any();
 		}
+	}
+
+	public class StringComparer : IComparer<string>
+	{
+		[DllImport("shlwapi.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
+		static extern int StrCmpLogicalW(string x, string y);
+
+		public int Compare(string? x, string? y) => StrCmpLogicalW(x, y);
 	}
 }

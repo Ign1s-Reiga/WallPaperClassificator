@@ -18,9 +18,27 @@
 						<ColumnDefinition Width="*" />
 						<ColumnDefinition Width="Auto" />
 					</Grid.ColumnDefinitions>
-					<Image Stretch="UniformToFill" Height="20" Width="20" Source="{Binding Path=FullPath}" />
-					<TextBlock Grid.Column="1" Text="{Binding Path=FileName}" VerticalAlignment="Center" />
-					<FontIcon Grid.Column="2" Glyph="{Binding Path=Symbol}" />
+					<ToolTipService.ToolTip>
+						<ToolTip>
+							<ToolTip.Content>
+								<Grid Padding="5" RowSpacing="4">
+									<Grid.RowDefinitions>
+										<RowDefinition Height="Auto" />
+										<RowDefinition Height="Auto" />
+									</Grid.RowDefinitions>
+									<Image Source="{Binding FileDescription.FullPath}" Height="160" />
+									<TextBlock
+										Grid.Row="1"
+										HorizontalTextAlignment="Center"	
+										Text="{Binding FileDescription.Size}"
+									/>
+								</Grid>
+							</ToolTip.Content>
+						</ToolTip>
+					</ToolTipService.ToolTip>
+					<Image Stretch="UniformToFill" Height="20" Width="20" Source="{Binding FileDescription.FullPath}" />
+					<TextBlock Grid.Column="1" Text="{Binding FileDescription.FileName}" VerticalAlignment="Center" />
+					<FontIcon Grid.Column="2" Glyph="{Binding Symbol}" />
 				</Grid>
 			</DataTemplate>
         </ResourceDictionary>

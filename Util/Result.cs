@@ -19,5 +19,5 @@
 		Error,
 	}
 
-	public record struct ResultData<T>(ResultStatus status, T value);
+	public record struct ResultData<T>(ResultStatus Status, T Value);
 }
