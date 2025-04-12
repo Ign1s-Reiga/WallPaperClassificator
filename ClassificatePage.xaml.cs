@@ -70,7 +70,6 @@ namespace WallPaperClassificator
 						Symbol = "\uF141" // hyphen symbol
 					})
 					.ToList();
-				imageList.ForEach(image => Debug.WriteLine($"{image.FileDescription.FileName}"));
 				ClassificateWindow clsfWindow = new ClassificateWindow(this.tmpDirPath, imageList);
 				clsfWindow.Closed += delegate {
 					MainWindow.Instance.AppWindow.Show();
@@ -102,12 +101,11 @@ namespace WallPaperClassificator
 				string destPath = Path.Combine(this.saveImageDirPath, Path.GetFileName(file));
 				try
 				{
-					File.Copy(file, destPath);
+					File.Copy(file, destPath, true);
 				}
-				catch
+				catch (Exception e)
 				{
-					// TODO: Log error
-					return;
+					Debug.WriteLine($"Failed to copy: From: {file}, Dest: {destPath}, Message: {e.Message}");
 				}
 			});
 			Directory.Delete(this.tmpDirPath, true);
@@ -182,16 +180,17 @@ namespace WallPaperClassificator
 			Parallel.ForEach(images, new ParallelOptions { MaxDegreeOfParallelism = maxParallelism }, info =>
 			{
 				string destPath = Path.Combine(this.tmpDirPath, info.Name);
-				File.Copy(info.FullName, destPath, true);
+				info.CopyTo(destPath, true);
 
 				using Image image = Image.Load(destPath);
-				if (Path.GetExtension(info.Name).ToLower() is ".webp")
+				if (Path.GetExtension(info.Name).ToLower() == ".webp")
 				{
 					string newPath = Path.ChangeExtension(destPath, ".png");
 					image.SaveAsPng(newPath);
 					File.Delete(destPath);
 					destPath = newPath;
 				}
+
 				descriptions.Add(new FileDescription(
 					Path.GetFileName(destPath),
 					destPath,
@@ -225,9 +224,10 @@ namespace WallPaperClassificator
 		private bool IsPathDuplicated(IEnumerable<string> files)
 		{
 			DirectoryInfo info = new DirectoryInfo(this.saveImageDirPath);
-			return info.EnumerateFiles()
-				.Where(file => files.Contains(Path.GetFileName(file.Name)))
-				.Any();
+
+			return info.Exists && info.EnumerateFiles()
+					.Where(file => files.Contains(Path.GetFileName(file.Name)))
+					.Any();
 		}
 	}
 
@@ -236,6 +236,8 @@ namespace WallPaperClassificator
 		[DllImport("shlwapi.dll", CharSet = CharSet.Unicode, ExactSpelling = true)]
 		static extern int StrCmpLogicalW(string x, string y);
 
-		public int Compare(string? x, string? y) => StrCmpLogicalW(x, y);
+		public int Compare(string? x, string? y) => x != null && y != null
+			? StrCmpLogicalW(x, y)
+			: 0;
 	}
 }
