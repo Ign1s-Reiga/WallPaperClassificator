@@ -1,21 +1,15 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 
 namespace WallPaperClassificator.Component
 {
 	public sealed partial class PopupInfoBar : UserControl
 	{
+		private readonly Queue<InfoBar> queue = new Queue<InfoBar>();
+
 		public PopupInfoBar()
 		{
 			this.InitializeComponent();
@@ -23,10 +17,6 @@ namespace WallPaperClassificator.Component
 
 		public void AddInfoBar(InfoBarSeverity severity, string message)
 		{
-			if (InfoBarPanel.Children.Count > 0 && InfoBarPanel.Children.First() is InfoBar prevInfoBar)
-			{
-				prevInfoBar.IsOpen = false;
-			}
 			InfoBar infoBar = new InfoBar
 			{
 				IsOpen = true,
@@ -36,7 +26,14 @@ namespace WallPaperClassificator.Component
 			};
 			infoBar.Closed += InfoBar_Closed;
 			infoBar.Loaded += InfoBar_Loaded;
-			InfoBarPanel.Children.Add(infoBar);
+			if (InfoBarPanel.Children.Count > 0 && InfoBarPanel.Children.First() is InfoBar prevInfoBar)
+			{
+				queue.Enqueue(infoBar);
+			}
+			else
+			{
+				InfoBarPanel.Children.Add(infoBar);
+			}
 		}
 
 		private void InfoBar_Loaded(object sender, RoutedEventArgs e)
@@ -56,6 +53,12 @@ namespace WallPaperClassificator.Component
 		{
 			InfoBar infoBar = (InfoBar)sender;
 			InfoBarPanel.Children.Remove(infoBar);
+
+			if (queue.Count > 0)
+			{
+				InfoBar nextInfoBar = queue.Dequeue();
+				InfoBarPanel.Children.Add(nextInfoBar);
+			}
 		}
 	}
 }

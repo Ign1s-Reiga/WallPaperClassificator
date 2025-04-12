@@ -108,11 +108,21 @@ namespace WallPaperClassificator
 					Debug.WriteLine($"Failed to copy: From: {file}, Dest: {destPath}, Message: {e.Message}");
 				}
 			});
-			Directory.Delete(this.tmpDirPath, true);
-			SaveImagesButton.IsEnabled = false;
-			Files.Clear();
+			try
+			{
+				Directory.Delete(this.tmpDirPath, true);
+			}
+			catch (Exception)
+			{
+				PopupInfoBar.AddInfoBar(InfoBarSeverity.Error, "Failed to delete the tmp directory. Please delete it manually.");
+			}
+			finally
+			{
+				SaveImageDirButton.IsEnabled = false;
+				Files.Clear();
 
-			PopupInfoBar.AddInfoBar(InfoBarSeverity.Success, "The images have been classificated successfully.");
+				PopupInfoBar.AddInfoBar(InfoBarSeverity.Success, "The images have been classificated successfully.");
+			}
 		}
 
 		private async void SelectFolder_Click(object sender, RoutedEventArgs args)
