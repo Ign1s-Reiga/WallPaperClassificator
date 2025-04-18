@@ -33,9 +33,8 @@ namespace WallPaperClassificator
 		private int posWinX = 0, posWinY = 0, posPressedX = 0, posPressedY = 0;
 		private bool pointerMoving = false;
 		private int selectedIndexCache = -1; // This value will contains the index of the item that was selected before the refresh request.
-		private bool isClassificationFinished = false;
 
-		public ClassificateWindow(string unclassifiedImageDirPath, List<ClassificateListItemData> classifiedImageList)
+		public ClassificateWindow(List<ClassificateListItemData> classifiedImageList)
 		{
 			this.defaultWallPaperPath = WallPaperHelper.GetWallPaper();
 			this.classifiedImageList = classifiedImageList;
@@ -98,11 +97,6 @@ namespace WallPaperClassificator
 					State = command == ClassificateCommand.Add ? ClassificateState.Save : ClassificateState.Except,
 					Symbol = command == ClassificateCommand.Add ? "\uF13E" : "\uF13D"
 				};
-				isClassificationFinished = ClassificateListView.SelectedIndex == FileList.Count - 1;
-				if (isClassificationFinished)
-				{
-					CloseClassificateWindowConfirmation.Text = $"Classificate Progress will be reflected to App Main Window.{Environment.NewLine}Do you want to close the window?";
-				}
 				FileList[ClassificateListView.SelectedIndex] = newItem;
 			}
 			ClassificateListView.SelectedIndex = this.selectedIndexCache < (FileList.Count - 1)
@@ -128,11 +122,8 @@ namespace WallPaperClassificator
 			// TODO: Add condition If desktop background was background color
 			await Task.Run(() => WallPaperHelper.SetWallPaper(this.defaultWallPaperPath));
 
-			if (isClassificationFinished)
-			{
-				this.classifiedImageList.Clear();
-				this.classifiedImageList.AddRange(FileList);
-			}
+			this.classifiedImageList.Clear();
+			this.classifiedImageList.AddRange(FileList);
 			this.Close();
 		}
 
@@ -193,7 +184,7 @@ namespace WallPaperClassificator
 		public required string Symbol { get; set; }
 	}
 
-	public record struct FileDescription(string FileName, string FullPath, string Size);
+	public record struct FileDescription(string FileName, string FullPath, byte[] HashArray, string Size);
 
 	public enum ClassificateCommand
 	{

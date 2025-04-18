@@ -46,31 +46,22 @@ namespace WallPaperClassificator
 					? SaveImageDirPath.Text
 					: Path.Combine(Directory.GetCurrentDirectory(), "save");
 				this.tmpDirPath = Path.Combine(UnclassifiedImageDirPath.Text, "tmp");
-				ResultData<string> saveDirResult = CreateDirectory(this.saveImageDirPath, false);
+				ResultData<string> saveDirResult = IOUtils.CreateDirectory(this.saveImageDirPath, false);
 				if (saveDirResult.Status == ResultStatus.Error)
 				{
 					PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, saveDirResult.Value);
 					return;
 				}
-				ResultData<string> tmpDirResult = CreateDirectory(this.tmpDirPath);
+				ResultData<string> tmpDirResult = IOUtils.CreateDirectory(this.tmpDirPath);
 				if (tmpDirResult.Status == ResultStatus.Error)
 				{
 					PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, tmpDirResult.Value);
 					return;
 				}
-				ConcurrentBag<FileDescription> descriptions = new ConcurrentBag<FileDescription>();
-				CopyToTmpDir(descriptions);
-
-				List<ClassificateListItemData> imageList = descriptions
-					.OrderBy(descriptions => descriptions.FileName, new StringComparer())
-					.Select(file => new ClassificateListItemData
-					{
-						FileDescription = file,
-						State = ClassificateState.None,
-						Symbol = "\uF141" // hyphen symbol
-					})
+				List<ClassificateListItemData> imageList = CopyToTmpDir(new ConcurrentBag<ClassificateListItemData>(Files))
+					.OrderBy(item => item.FileDescription.FileName, new StringComparer())
 					.ToList();
-				ClassificateWindow clsfWindow = new ClassificateWindow(this.tmpDirPath, imageList);
+				ClassificateWindow clsfWindow = new ClassificateWindow(imageList);
 				clsfWindow.Closed += delegate {
 					MainWindow.Instance.AppWindow.Show();
 					imageList.ForEach(Files.Add);
@@ -85,29 +76,42 @@ namespace WallPaperClassificator
 			}
 		}
 
-		private void SaveImages_Click(object sender, RoutedEventArgs e)
+		private async void SaveImages_Click(object sender, RoutedEventArgs e)
 		{
-
-			IEnumerable<string> listToSave = Files.Where(file => file.State == ClassificateState.Save)
-				.Select(file => file.FileDescription.FullPath);
-
-			if (IsPathDuplicated(listToSave))
+			ContentDialogResult result = ContentDialogResult.Primary;
+			if (Files.Where(file => file.State == ClassificateState.None).Any())
 			{
-				PopupInfoBar.AddInfoBar(InfoBarSeverity.Warning, "Some file(s) are couldn't be copied, because there are file(s) that have same name.");
-				return;
+				ContentDialog confirmDialog = new ContentDialog
+				{
+					Title = "Classification is not finished yet",
+					Content = "There are unclassified image(s) in the list. Are you okay to continue?",
+					CloseButtonText = "No",
+					PrimaryButtonText = "Yes",
+					DefaultButton = ContentDialogButton.Close,
+					XamlRoot = XamlRoot
+				};
+
+				result = await confirmDialog.ShowAsync();
 			}
-			listToSave.ToList().ForEach(file =>
+
+			if (result == ContentDialogResult.Primary)
 			{
-				string destPath = Path.Combine(this.saveImageDirPath, Path.GetFileName(file));
-				try
+				IEnumerable<string> listToSave = Files.Where(file => file.State == ClassificateState.Save)
+					.Select(file => file.FileDescription.FullPath);
+				listToSave.ToList().ForEach(file =>
 				{
-					File.Copy(file, destPath, true);
-				}
-				catch (Exception e)
-				{
-					Debug.WriteLine($"Failed to copy: From: {file}, Dest: {destPath}, Message: {e.Message}");
-				}
-			});
+					string destPath = Path.Combine(this.saveImageDirPath, Path.GetFileName(file));
+					try
+					{
+						File.Copy(file, destPath, true);
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine($"Failed to copy: From: {file}, Dest: {destPath}, Message: {e.Message}");
+					}
+				});
+				Files.Clear();
+			}
 			try
 			{
 				Directory.Delete(this.tmpDirPath, true);
@@ -118,10 +122,11 @@ namespace WallPaperClassificator
 			}
 			finally
 			{
-				SaveImageDirButton.IsEnabled = false;
-				Files.Clear();
-
-				PopupInfoBar.AddInfoBar(InfoBarSeverity.Success, "The images have been classificated successfully.");
+				SaveImagesButton.IsEnabled = false;
+				if (result == ContentDialogResult.Primary)
+					PopupInfoBar.AddInfoBar(InfoBarSeverity.Success, "The images have been classificated successfully.");
+				else
+					PopupInfoBar.AddInfoBar(InfoBarSeverity.Informational, "Image saving process has been canceled.");
 			}
 		}
 
@@ -147,45 +152,14 @@ namespace WallPaperClassificator
 			}
 		}
 
-		private ResultData<string> CreateDirectory(string path, bool checkFileContains = true)
-		{
-			if (File.Exists(path))
-			{
-				return Result.Error<string>("The path is already allocated to a file. please delete it.");
-			}
-
-			if (Directory.Exists(path))
-			{
-				if (Directory.GetFiles(path).Length > 0 && checkFileContains)
-				{
-					return Result.Error<string>("The directory includes some file(s), please delete them.");
-				}
-				else
-				{
-					return Result.Ok<string>(path);
-				}
-			}
-			else
-			{
-				try
-				{
-					Directory.CreateDirectory(path);
-					return Result.Ok<string>(path);
-				}
-				catch (Exception e)
-				{
-					return Result.Error<string>(e.Message);
-				}
-			}
-		}
-
-		private void CopyToTmpDir(ConcurrentBag<FileDescription> descriptions)
+		private ConcurrentBag<ClassificateListItemData> CopyToTmpDir(ConcurrentBag<ClassificateListItemData> items)
 		{
 			DirectoryInfo unclsfDirInfo = new DirectoryInfo(UnclassifiedImageDirPath.Text);
-			string[] acceptableMIMETypes = ["image/jpeg", "image/png", "image/gif", "image/bmp", "image/tiff", "image/webp"];
+			
 			ConcurrentBag<FileInfo> images = new ConcurrentBag<FileInfo>();
-			FilterByIsImage(unclsfDirInfo.EnumerateFiles(), images, acceptableMIMETypes);
+			FilterByIsImage(unclsfDirInfo.EnumerateFiles(), images);
 
+			ConcurrentBag<ClassificateListItemData> updatedItems = new ConcurrentBag<ClassificateListItemData>();
 			int maxParallelism = (int)App.Settings.NumThreadsConvImages;
 			Parallel.ForEach(images, new ParallelOptions { MaxDegreeOfParallelism = maxParallelism }, info =>
 			{
@@ -201,16 +175,42 @@ namespace WallPaperClassificator
 					destPath = newPath;
 				}
 
-				descriptions.Add(new FileDescription(
-					Path.GetFileName(destPath),
-					destPath,
-					$"{image.Width}x{image.Height}"
-				));
+				ClassificateListItemData? existingItem = items.FirstOrDefault(item => item.FileDescription.FileName == Path.GetFileName(destPath));
+				try
+				{
+					IOUtils.ComputeFileHash(destPath, out byte[] fileHash);
+
+					if (existingItem == null || !existingItem.FileDescription.HashArray.SequenceEqual(fileHash))
+					{
+						updatedItems.Add(new ClassificateListItemData
+						{
+							FileDescription = new FileDescription
+							{
+								FileName = Path.GetFileName(destPath),
+								FullPath = destPath,
+								HashArray = fileHash
+							},
+							State = ClassificateState.None,
+							Symbol = "\uF141" // hyphen symbol
+						});
+					}
+					else
+					{
+						updatedItems.Add(existingItem);
+					}
+				}
+				catch (Exception e)
+				{
+					Console.WriteLine($"An exception while processing file {info.Name}: {e.Message}");
+				}
 			});
+
+			return updatedItems;
 		}
 
-		private void FilterByIsImage(IEnumerable<FileInfo> fileList, ConcurrentBag<FileInfo> imageList, string[] MIMETypes)
+		private void FilterByIsImage(IEnumerable<FileInfo> fileList, ConcurrentBag<FileInfo> imageList)
 		{
+			string[] MIMETypes = ["image/jpeg", "image/png", "image/gif", "image/bmp", "image/tiff", "image/webp"];
 			Parallel.ForEach(fileList, info =>
 			{
 				bool isImage = false;
@@ -221,7 +221,7 @@ namespace WallPaperClassificator
 				}
 				catch (Exception e)
 				{
-					Debug.WriteLine(e.Message);
+					Console.WriteLine($"Failed to detect image format: {e.Message}");
 				}
 
 				if (isImage)
@@ -229,15 +229,6 @@ namespace WallPaperClassificator
 					imageList.Add(info);
 				}
 			});
-		}
-
-		private bool IsPathDuplicated(IEnumerable<string> files)
-		{
-			DirectoryInfo info = new DirectoryInfo(this.saveImageDirPath);
-
-			return info.Exists && info.EnumerateFiles()
-					.Where(file => files.Contains(Path.GetFileName(file.Name)))
-					.Any();
 		}
 	}
 

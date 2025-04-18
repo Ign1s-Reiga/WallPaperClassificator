@@ -46,10 +46,13 @@
 							<TextBlock
 								FontWeight="Bold"
 								Margin="0,0,0,12"
-								Text="Classificate Progress will not be saved. Are you sure to cancel?"
 								TextWrapping="Wrap"
 								x:Name="CloseClassificateWindowConfirmation"
-							/>
+							>
+								Classificate Progress will be reflected to App Main Window.
+								<LineBreak />
+								Are you sure to close?
+							</TextBlock>
 							<Button
 								Content="Yes"
 								Width="100"
